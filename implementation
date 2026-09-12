@@ -1,0 +1,84 @@
+basta ganto process at flow
+
+Equipment Borrowing System
+
+laravel + mysql
+
+database name
+ebs_db
+
+bantay/staff
+kapag nanghiram gamit i papa scan yung qr ng student tapos ibibigay gamit ng bantay tatanong details kung kailan ibabalik tapos pwede ding picturan ng bantay kubg anong gamit para legit nga na ng hiram pero optional nalang yun
+tapos matatagged na sa student na hiniram yung gamit na yun
+
+tapos habang on going na nasa kanya item nakalagay lang parang may active na hiniram yung student na yun na di pa nababalik
+
+tapos kapag binalik na with image proof matatagged na sa system na parang returned pede na uli siya manghiram tapos kapag due kung ano policy na nakalagay yun gagawin
+
+tapos mag nonotif realtime sa email kapag need na isauli 1 day before due like lalabas need mo na isauli bukas kasi may policy tayo na kapag due date mag kakaron ka ng babayadan kada araw 5 pesos
+
+
+tapos kapag nag due hindi na naibalik 5 pesos
+
+tapos kapag due pa lang then hindi pa rin naisauli hindi pede ulit humiram pag di pa naayos ang mga penalty
+may red sa system kumbaga
+
+
+yan ang sequence tapos ang users
+
+Admin
+nakakapag create siya ng staff acc tapos ang mga need na details ay 
+fullname
+email
+password
+department
+
+
+Staff
+may dashboard sila pero ang nandon lang ay yung mga borrowing history sila nag mamanage no need na ng mismong inventory bali ang pinaka need 
+i sscan ng staff ang qr ng student tapos automatic ma find kung sinong student yun tapos pede na dun mag iinput ngayon ng item si staff bali ang need lang ay 
+item_name required
+item_location kung san hiniram sila na bahala mag lagay non required
+time_date_to_borrow -> tapos kasama na doon yung time
+time_date_to_returned -> dito kung kailan nila need ireturn
+proof_of_borrowing -> optional
+status -> on going | returned
+
+bali multiple items pwede may column table add tapos remove para mas marami sila pwede mahiram
+tapos pag ka submit automatic dun sa qr na naka tagged dun masubmit at siya matatagged na ng hiram
+
+
+Students
+
+auto qr code na kapag mag reregister sila using @ub.edu.ph na acc nila yun lang pwede i accept then need muna iverify sa gmail tapos sa dashboard nila nandon yung My Borrowing History kung ano yung returned
+na yung on going pa saka yung due na tapos may parang info na pag halimbawa september 9 mo kailangang time date to returned mag kaka penalty ka pa lang sa september 10 ng 5 pesos na babayadan running yun if lumampas pa 10 pesos na
+
+Tapos gusto ko ganto color pallete ng system
+https://ub.edu.ph/
+
+use ub-logo.png along all the logo na kailangang lagyan mapa navbar gamitin mo dyan yung name na EBS 
+
+make it also responsive i need combination of white para malinis tapos yung logo pwede mong kunin dyan ang name ng system ay EBS pero pwede mong gamitin yang ub logo kasi sa school ko to integrated
+tapos gusto ko kapag ginagawa ang system MVC siya like naka seperation of concern
+
+Model
+View
+Controller
+
+bali ganto style
+
+resources/ views , controllers, 
+
+admin/
+staff/
+students/
+
+ganan format tapos gusto ko pag mag insert ng picture gusto ko hindi sa storage:link sa public directly
+
+make also responsive all pati yung text dapat maliit in terms of mobile para talagang good sa mata ng gagamit tapos gamit ka ng datatable para mas malinis
+tapos kapag mag fetch ka ng data wag ng endforelse use endforeach only tapos yung mga alerts gusto ko sweetalert top right and ibased mo sa color pallete yung design ng alerts
+
+sa env gamit ka ng smtp ito credentials
+
+noreply.avaproperties@gmail.com
+pzsgprmobshjkvqyh
