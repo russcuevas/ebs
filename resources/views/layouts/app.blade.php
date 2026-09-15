@@ -540,7 +540,7 @@
             flex: 1 1 52%;
             position: relative;
             min-height: 100vh;
-            background-image: url('{{ asset("images/login-background.jpeg") }}');
+            background-image: url('{{ asset('images/login-background.jpeg') }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -779,7 +779,7 @@
                             <div class="user-name" title="{{ Auth::user()->name }}">{{ Auth::user()->name }}</div>
                             <div class="user-role-badge">
                                 {{ ucfirst(Auth::user()->role) }} @if (Auth::user()->department)
-                                    &bull; {{ Auth::user()->department }}
+                                    <br> {{ Auth::user()->department }}
                                 @endif
                             </div>
                         </div>
@@ -862,7 +862,7 @@
                             </a>
                         @else
                             <div class="topbar-brand-title d-none d-sm-block">
-                                University of Batangas &bull; Equipment Borrowing System
+                                University of Batangas
                             </div>
                         @endguest
                     </div>
@@ -900,7 +900,7 @@
                 <footer class="app-footer">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            <strong>University of Batangas</strong> &bull; Equipment Borrowing System (EBS)
+                            <strong>University of Batangas</strong>
                         </div>
                         <div>
                             &copy; {{ date('Y') }} EBS. All rights reserved.

@@ -26,7 +26,12 @@ class BorrowingController extends Controller
             }
         }
 
-        return view('staff.borrowings.create', compact('selectedStudent'));
+        $allStudents = User::where('role', 'student')
+            ->whereNotNull('email_verified_at')
+            ->orderBy('name')
+            ->get();
+
+        return view('staff.borrowings.create', compact('selectedStudent', 'allStudents'));
     }
 
     public function store(Request $request)

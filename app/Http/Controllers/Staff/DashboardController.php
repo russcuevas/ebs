@@ -19,12 +19,18 @@ class DashboardController extends Controller
         $activeBorrowings = BorrowingTransaction::where('status', 'ongoing')->count();
         $overdueBorrowings = BorrowingTransaction::where('status', 'overdue')->count();
         $returnedBorrowings = BorrowingTransaction::where('status', 'returned')->count();
+        $unpaidPenaltiesCount = BorrowingTransaction::where('penalty_status', 'unpaid')->where('total_penalty', '>', 0)->count();
+        $unpaidPenaltiesTotal = (float) BorrowingTransaction::where('penalty_status', 'unpaid')->sum('total_penalty');
         $totalTransactions = BorrowingTransaction::count();
 
         $query = BorrowingTransaction::with(['student', 'staff', 'items', 'returnedByStaff'])->latest();
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'unpaid_penalty') {
+                $query->where('penalty_status', 'unpaid')->where('total_penalty', '>', 0);
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         $transactions = $query->get();
@@ -33,6 +39,8 @@ class DashboardController extends Controller
             'activeBorrowings',
             'overdueBorrowings',
             'returnedBorrowings',
+            'unpaidPenaltiesCount',
+            'unpaidPenaltiesTotal',
             'totalTransactions',
             'transactions'
         ));

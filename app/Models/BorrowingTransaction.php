@@ -120,4 +120,55 @@ class BorrowingTransaction extends Model
         }
         return now()->greaterThan($this->due_date_time);
     }
+
+    /**
+     * Get count of returned items
+     */
+    public function returnedItemsCount(): int
+    {
+        return $this->items->where('status', 'returned')->count();
+    }
+
+    /**
+     * Get total count of borrowed items
+     */
+    public function totalItemsCount(): int
+    {
+        return $this->items->count();
+    }
+
+    /**
+     * Get count of pending (unreturned) items
+     */
+    public function pendingItemsCount(): int
+    {
+        return $this->items->where('status', '!=', 'returned')->count();
+    }
+
+    /**
+     * Check if all items in the transaction are returned
+     */
+    public function isFullyReturned(): bool
+    {
+        $total = $this->totalItemsCount();
+        return $total > 0 && $this->returnedItemsCount() === $total;
+    }
+
+    /**
+     * Return progress formatted e.g. "1/3"
+     */
+    public function returnProgress(): string
+    {
+        return $this->returnedItemsCount() . '/' . $this->totalItemsCount();
+    }
+
+    /**
+     * Return percentage formatted e.g. 33
+     */
+    public function returnProgressPercent(): int
+    {
+        $total = $this->totalItemsCount();
+        if ($total === 0) return 100;
+        return (int) round(($this->returnedItemsCount() / $total) * 100);
+    }
 }

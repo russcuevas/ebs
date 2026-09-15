@@ -66,8 +66,8 @@
                 <i class="fa-solid fa-circle-info text-primary me-1"></i> Present this QR Code to the staff handler whenever borrowing university equipment.
             </div>
 
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-                <i class="fa-solid fa-print me-1"></i> Print / Save QR
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="downloadQrBtn" onclick="downloadQrImage()" title="Download QR Image">
+                <i class="fa-solid fa-download me-1"></i> Print / Save QR
             </button>
         </div>
     </div>
@@ -186,3 +186,96 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function downloadQrImage() {
+    const container = document.querySelector('.qr-svg-container');
+    if (!container) return;
+    const svgElement = container.querySelector('svg');
+    if (!svgElement) return;
+
+    // Clone SVG to ensure we can manipulate size without altering the on-screen card
+    const clonedSvg = svgElement.cloneNode(true);
+    const canvasSize = 800; // High resolution for clear scanning
+    clonedSvg.setAttribute('width', canvasSize);
+    clonedSvg.setAttribute('height', canvasSize);
+
+    if (!clonedSvg.getAttribute('xmlns')) {
+        clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    }
+
+    const svgString = new XMLSerializer().serializeToString(clonedSvg);
+    const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+
+    const img = new Image();
+    img.onload = function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const ctx = canvas.getContext('2d');
+
+        // Clean white background for contrast and scanner compatibility
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+        // Draw the QR Code
+        ctx.drawImage(img, 0, 0, canvasSize, canvasSize);
+
+        const filename = '{{ \Illuminate\Support\Str::slug($student->student_id ?: $student->name) }}-qr-code.png';
+
+        try {
+            canvas.toBlob(function(blob) {
+                if (blob) {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+                } else {
+                    fallbackDataUrlDownload(canvas, filename);
+                }
+            }, 'image/png');
+        } catch (e) {
+            fallbackDataUrlDownload(canvas, filename);
+        }
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({
+                icon: 'success',
+                title: 'QR Code image downloaded successfully!'
+            });
+        }
+    };
+
+    img.onerror = function () {
+        // Fallback: download as SVG image directly if canvas fails
+        const fallbackBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const fallbackUrl = URL.createObjectURL(fallbackBlob);
+        const link = document.createElement('a');
+        link.href = fallbackUrl;
+        link.download = '{{ \Illuminate\Support\Str::slug($student->student_id ?: $student->name) }}-qr-code.svg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(fallbackUrl), 1000);
+    };
+
+    img.src = svgDataUrl;
+}
+
+function fallbackDataUrlDownload(canvas, filename) {
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+@endpush
+

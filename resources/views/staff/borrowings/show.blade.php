@@ -10,6 +10,9 @@
     @if($transaction->status !== 'returned')
         <a href="{{ route('staff.borrowings.return', $transaction) }}" class="btn btn-sm btn-success">
             <i class="fa-solid fa-arrow-rotate-left me-1"></i> Process Return
+            @if($transaction->items->count() > 1 && $transaction->returnedItemsCount() > 0)
+                ({{ $transaction->returnedItemsCount() }}/{{ $transaction->totalItemsCount() }} Returned)
+            @endif
         </a>
     @endif
 </div>
@@ -19,13 +22,21 @@
         <div class="card card-ub mb-4">
             <div class="card-header-ub d-flex justify-content-between align-items-center">
                 <span><i class="fa-solid fa-file-lines me-2"></i> Transaction: <span class="font-monospace">{{ $transaction->reference_no }}</span></span>
-                @if($transaction->status === 'returned')
-                    <span class="badge-status-returned"><i class="fa-solid fa-check me-1"></i> Returned</span>
-                @elseif($transaction->isOverdue())
-                    <span class="badge-status-overdue"><i class="fa-solid fa-triangle-exclamation me-1"></i> Overdue</span>
-                @else
-                    <span class="badge-status-ongoing"><i class="fa-solid fa-clock me-1"></i> Ongoing</span>
-                @endif
+                <div>
+                    @if($transaction->status === 'returned')
+                        <span class="badge-status-returned"><i class="fa-solid fa-check me-1"></i> Returned</span>
+                    @elseif($transaction->isOverdue())
+                        <span class="badge-status-overdue"><i class="fa-solid fa-triangle-exclamation me-1"></i> Overdue</span>
+                        @if($transaction->returnedItemsCount() > 0)
+                            <span class="badge bg-warning text-dark ms-1">Partial ({{ $transaction->returnedItemsCount() }}/{{ $transaction->totalItemsCount() }})</span>
+                        @endif
+                    @else
+                        <span class="badge-status-ongoing"><i class="fa-solid fa-clock me-1"></i> Ongoing</span>
+                        @if($transaction->returnedItemsCount() > 0)
+                            <span class="badge bg-primary text-white ms-1">Partial ({{ $transaction->returnedItemsCount() }}/{{ $transaction->totalItemsCount() }})</span>
+                        @endif
+                    @endif
+                </div>
             </div>
             <div class="card-body p-4">
                 <div class="row g-3 mb-4">
@@ -158,15 +169,82 @@
                 </div>
 
                 @if($transaction->total_penalty > 0 && $transaction->penalty_status === 'unpaid')
-                    <form action="{{ route('staff.borrowings.settle-penalty', $transaction) }}" method="POST" class="mt-3" onsubmit="return confirm('Confirm receipt of penalty payment?')">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-success w-100">
-                            <i class="fa-solid fa-receipt me-1"></i> Accept Penalty Payment
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-sm btn-success w-100 mt-3 fw-bold" data-bs-toggle="modal" data-bs-target="#collectShowPenaltyModal">
+                        <i class="fa-solid fa-hand-holding-dollar me-1"></i> Collect Penalty Payment (₱{{ number_format($transaction->total_penalty, 2) }})
+                    </button>
                 @endif
             </div>
         </div>
     </div>
 </div>
+
+@if($transaction->total_penalty > 0 && $transaction->penalty_status === 'unpaid')
+<!-- Collect Penalty Modal -->
+<div class="modal fade" id="collectShowPenaltyModal" tabindex="-1" aria-labelledby="collectShowPenaltyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background: var(--ub-maroon);">
+                <h5 class="modal-title fw-bold" id="collectShowPenaltyModalLabel">
+                    <i class="fa-solid fa-hand-holding-dollar me-2 text-warning"></i> Collect Equipment Penalty
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('staff.borrowings.settle-penalty', $transaction) }}">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Transaction Ref:</span>
+                            <span class="font-monospace fw-bold" style="color: var(--ub-maroon);">{{ $transaction->reference_no }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Student:</span>
+                            <span class="fw-bold text-dark">{{ $transaction->student->name ?? 'N/A' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fw-bold text-danger">Total Penalty Due:</span>
+                            <span class="fs-4 fw-bold text-danger">₱{{ number_format($transaction->total_penalty, 2) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="showCashTendered" class="form-label fw-semibold small">Cash Received / Tendered (₱)</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold">₱</span>
+                            <input type="number" step="0.50" min="0" class="form-control form-control-lg fw-bold" id="showCashTendered" name="amount_received" value="{{ number_format($transaction->total_penalty, 2, '.', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="p-2 px-3 rounded bg-success-subtle border border-success-subtle mb-3 d-flex justify-content-between align-items-center">
+                        <span class="small fw-semibold text-success-emphasis">Change / Sukli:</span>
+                        <span class="fw-bold fs-5 text-success" id="showChangeAmount">₱0.00</span>
+                    </div>
+
+                    <div class="mb-2">
+                        <label for="showRemarks" class="form-label fw-semibold small">Receipt No. / Remarks (Optional)</label>
+                        <input type="text" class="form-control form-control-sm" id="showRemarks" name="remarks" placeholder="e.g. Official Receipt # or Counter Note">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success fw-bold">
+                        <i class="fa-solid fa-check-circle me-1"></i> Confirm Payment Received
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
+
+@push('scripts')
+<script>
+    const dueAmount = {{ (float) $transaction->total_penalty }};
+    $('#showCashTendered').on('input', function() {
+        const tendered = parseFloat($(this).val()) || 0;
+        const change = Math.max(0, tendered - dueAmount);
+        $('#showChangeAmount').text('₱' + change.toFixed(2));
+    });
+</script>
+@endpush

@@ -75,6 +75,7 @@ Route::prefix('staff')->name('staff.')->middleware(['auth', 'role:staff'])->grou
     Route::get('/borrowings/{transaction}/return', [Staff\ReturnController::class, 'showReturnForm'])->name('borrowings.return');
     Route::post('/borrowings/{transaction}/return', [Staff\ReturnController::class, 'processReturn'])->name('borrowings.process-return');
     Route::post('/borrowings/{transaction}/settle-penalty', [Staff\ReturnController::class, 'settlePenalty'])->name('borrowings.settle-penalty');
+    Route::post('/students/{student}/settle-penalties', [Staff\ReturnController::class, 'settleStudentPenalties'])->name('students.settle-penalties');
 });
 
 // Student Routes
