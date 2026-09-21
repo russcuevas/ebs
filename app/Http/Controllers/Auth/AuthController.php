@@ -25,6 +25,17 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $loginInput = trim((string) $request->input('email', ''));
+        if (!empty($loginInput) && !str_contains($loginInput, '@')) {
+            $userMatch = User::where('student_id', $loginInput)->first();
+            if ($userMatch) {
+                $loginInput = $userMatch->email;
+            } else {
+                $loginInput .= '@ub.edu.ph';
+            }
+            $request->merge(['email' => strtolower($loginInput)]);
+        }
+
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -71,6 +82,16 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        $rawEmail = trim((string) $request->input('email', ''));
+        if (!empty($rawEmail)) {
+            // Remove any trailing @ub.edu.ph if entered/pasted, then append @ub.edu.ph if no domain is provided
+            $rawEmail = preg_replace('/(@ub\.edu\.ph)+$/i', '', $rawEmail);
+            if (!str_contains($rawEmail, '@')) {
+                $rawEmail .= '@ub.edu.ph';
+            }
+            $request->merge(['email' => strtolower($rawEmail)]);
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'student_id' => ['required', 'string', 'max:50', 'unique:users,student_id'],

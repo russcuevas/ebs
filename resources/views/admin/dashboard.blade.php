@@ -78,34 +78,38 @@
     <div class="row g-3 mb-4">
         <!-- Staff Members -->
         <div class="col-6 col-md-3">
-            <div class="card card-ub p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div
-                        style="width: 44px; height: 44px; background: #e0f2fe; color: #0284c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                        <i class="fa-solid fa-id-card-clip"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small">Active Staff</div>
-                        <h5 class="fw-bold mb-0">{{ $totalStaff }}</h5>
+            <a href="{{ route('admin.staff.index') }}" class="text-decoration-none">
+                <div class="card card-ub p-3 h-100 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div
+                            style="width: 44px; height: 44px; background: #e0f2fe; color: #0284c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            <i class="fa-solid fa-id-card-clip"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Active Staff</div>
+                            <h5 class="fw-bold mb-0 text-dark">{{ $totalStaff }}</h5>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Registered Students -->
         <div class="col-6 col-md-3">
-            <div class="card card-ub p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div
-                        style="width: 44px; height: 44px; background: #fdf4ff; color: #c026d3; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small">Students</div>
-                        <h5 class="fw-bold mb-0">{{ $totalStudents }}</h5>
+            <a href="{{ route('admin.students.index') }}" class="text-decoration-none">
+                <div class="card card-ub p-3 h-100 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div
+                            style="width: 44px; height: 44px; background: #fdf4ff; color: #c026d3; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Students</div>
+                            <h5 class="fw-bold mb-0 text-dark">{{ $totalStudents }}</h5>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Unpaid Penalties -->

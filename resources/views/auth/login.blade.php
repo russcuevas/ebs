@@ -11,7 +11,7 @@
         <div class="auth-split-left-content">
             <div class="auth-hero-pill">
                 <i class="fa-solid fa-graduation-cap text-warning"></i>
-                <span>University of Batangas &bull; Lipa City Campus</span>
+                <span>University of Batangas <br> Lipa City Campus</span>
             </div>
         </div>
 

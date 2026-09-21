@@ -135,9 +135,11 @@
                 width: 200px;
                 height: 200px;
             }
+
             .step-stepper-nav {
                 gap: 8px;
             }
+
             .step-stepper-line {
                 width: 20px;
             }
@@ -154,7 +156,7 @@
         <div class="auth-split-left-content">
             <div class="auth-hero-pill">
                 <i class="fa-solid fa-graduation-cap text-warning"></i>
-                <span>University of Batangas &bull; Lipa City Campus</span>
+                <span>University of Batangas <br> Lipa City Campus</span>
             </div>
         </div>
 
@@ -366,17 +368,18 @@
                     <!-- Official Student Email -->
                     <div class="mb-2">
                         <div class="input-group">
-                            <input type="email" name="email" id="email"
+                            <input type="text" name="email" id="email"
                                 class="form-control auth-input-clean @error('email') is-invalid @enderror"
-                                value="{{ old('email') }}" placeholder="Student UB Gmail" required
-                                autocomplete="email">
+                                value="{{ old('email') ? preg_replace('/@ub\.edu\.ph$/i', '', old('email')) : '' }}"
+                                placeholder="Student UB Gmail Username" required
+                                autocomplete="username">
                             <span class="input-group-text bg-light text-muted small fw-semibold border-start-0"
                                 style="border-radius: 0 8px 8px 0; border: 1.5px solid #cbd5e1; border-left: none;">
                                 @ub.edu.ph
                             </span>
                         </div>
                         @error('email')
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 <i class="fa-solid fa-circle-exclamation me-1"></i> {{ $message }}
                             </div>
                         @enderror
@@ -645,6 +648,19 @@
                 goToStep(2);
             }
         @endif
+
+        // Auto clean email field if user pastes or types @ub.edu.ph
+        const emailInput = document.getElementById('email');
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                if (this.value.includes('@ub.edu.ph')) {
+                    this.value = this.value.replace(/@ub\.edu\.ph/gi, '').trim();
+                }
+            });
+            emailInput.addEventListener('blur', function() {
+                this.value = this.value.replace(/@ub\.edu\.ph/gi, '').trim();
+            });
+        }
 
         function toggleFieldVisibility(fieldId, btn) {
             const input = document.getElementById(fieldId);

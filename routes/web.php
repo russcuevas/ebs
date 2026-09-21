@@ -47,6 +47,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Staff Management
     Route::resource('staff', Admin\StaffController::class);
 
+    // Student Management
+    Route::get('/students/{student}/print', [Admin\StudentController::class, 'printCard'])->name('students.print');
+    Route::resource('students', Admin\StudentController::class);
+    Route::post('/students/{student}/toggle-status', [Admin\StudentController::class, 'toggleStatus'])->name('students.toggle-status');
+    Route::post('/students/{student}/verify-email', [Admin\StudentController::class, 'verifyEmail'])->name('students.verify-email');
+
     // Borrowing Transactions Monitoring
     Route::get('/borrowings', [Admin\BorrowingController::class, 'index'])->name('borrowings.index');
     Route::get('/borrowings/{transaction}', [Admin\BorrowingController::class, 'show'])->name('borrowings.show');

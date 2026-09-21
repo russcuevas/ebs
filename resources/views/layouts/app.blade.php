@@ -1045,6 +1045,11 @@
                                 <i class="fa-solid fa-user-shield"></i>
                                 <span>Staff Management</span>
                             </a>
+                            <a class="sidebar-link {{ request()->routeIs('admin.students.*') ? 'active' : '' }}"
+                                href="{{ route('admin.students.index') }}">
+                                <i class="fa-solid fa-user-graduate"></i>
+                                <span>Student Management</span>
+                            </a>
                             <a class="sidebar-link {{ request()->routeIs('admin.borrowings.*') ? 'active' : '' }}"
                                 href="{{ route('admin.borrowings.index') }}">
                                 <i class="fa-solid fa-boxes-stacked"></i>
