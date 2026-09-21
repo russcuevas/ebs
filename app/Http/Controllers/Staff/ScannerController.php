@@ -46,12 +46,39 @@ class ScannerController extends Controller
         $isBlocked = $student->hasOverdueOrUnpaidPenalties();
         $unpaidPenalties = $student->totalUnpaidPenalties();
 
-        // Get student's current active or overdue borrowings
+        // Get student's current active or overdue borrowings with item breakdown
         $activeBorrowings = $student->borrowings()
             ->with('items')
             ->whereIn('status', ['ongoing', 'overdue'])
             ->latest()
             ->get();
+
+        $formattedBorrowings = $activeBorrowings->map(function ($b) {
+            return [
+                'id' => $b->id,
+                'reference_no' => $b->reference_no,
+                'status' => $b->status,
+                'is_overdue' => $b->isOverdue(),
+                'borrow_date_formatted' => $b->borrow_date_time ? $b->borrow_date_time->format('M d, Y h:i A') : null,
+                'due_date_formatted' => $b->due_date_time ? $b->due_date_time->format('M d, Y h:i A') : null,
+                'penalty_amount' => (float) $b->total_penalty,
+                'penalty_status' => $b->penalty_status,
+                'return_url' => route('staff.borrowings.return', $b->id),
+                'show_url' => route('staff.borrowings.show', $b->id),
+                'total_items_count' => $b->items->count(),
+                'returned_items_count' => $b->returnedItemsCount(),
+                'pending_items_count' => $b->pendingItemsCount(),
+                'items' => $b->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->item_name,
+                        'location' => $item->item_location,
+                        'status' => $item->status,
+                        'is_returned' => $item->status === 'returned',
+                    ];
+                })->values(),
+            ];
+        });
 
         $blockReasons = [];
         if ($isBlocked) {
@@ -79,7 +106,7 @@ class ScannerController extends Controller
             'is_blocked' => $isBlocked,
             'unpaid_penalties' => $unpaidPenalties,
             'block_reasons' => $blockReasons,
-            'active_borrowings' => $activeBorrowings,
+            'active_borrowings' => $formattedBorrowings,
         ]);
     }
 }

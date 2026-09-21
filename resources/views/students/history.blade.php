@@ -30,16 +30,21 @@
 </div>
 
 <!-- History DataTable -->
-<div class="card card-ub shadow-sm">
-    <div class="card-header-ub">
-        <i class="fa-solid fa-list-check me-2"></i> My Transactions List
+<div class="card card-ub overflow-hidden">
+    <div class="card-header-ub d-flex justify-content-between align-items-center py-3 px-4">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width: 32px; height: 32px; background: rgba(123, 17, 19, 0.08); color: var(--ub-maroon); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px;">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+            <span class="fw-bold fs-6" style="color: var(--ub-maroon);">My Transactions List</span>
+        </div>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle datatable w-100">
-                <thead class="table-light">
+            <table class="table table-hover align-middle datatable w-100 mb-0">
+                <thead>
                     <tr>
-                        <th>Ref No.</th>
+                        <th class="ps-4">Ref No.</th>
                         <th>Borrowed Items</th>
                         <th>Staff Handler</th>
                         <th>Date Borrowed</th>
@@ -47,70 +52,100 @@
                         <th>Date Returned</th>
                         <th>Status</th>
                         <th>Penalty (₱5/day)</th>
-                        <th class="text-end">Actions</th>
+                        <th class="text-end pe-4">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if(count($borrowings) > 0)
                         @foreach($borrowings as $trans)
                         <tr>
-                            <td class="font-monospace fw-bold">
-                                <a href="{{ route('student.borrowings.show', $trans) }}" style="color: var(--ub-maroon);" class="text-decoration-none">
-                                    {{ $trans->reference_no }}
+                            <td class="ps-4 text-nowrap">
+                                <a href="{{ route('student.borrowings.show', $trans) }}"
+                                    class="text-decoration-none fw-bold font-monospace d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded"
+                                    style="color: var(--ub-maroon); background: #fff1f2; border: 1px solid #ffe4e6; font-size: 12px;">
+                                    <i class="fa-solid fa-barcode text-muted" style="font-size: 11px;"></i>
+                                    <span>{{ $trans->reference_no }}</span>
                                 </a>
                             </td>
                             <td>
-                                @foreach($trans->items as $item)
-                                    <div>
-                                        <i class="fa-solid fa-cube text-secondary me-1" style="font-size: 11px;"></i>
-                                        <strong>{{ $item->item_name }}</strong> 
-                                        <small class="text-muted">({{ $item->item_location }})</small>
-                                    </div>
-                                @endforeach
-                            </td>
-                            <td>
-                                <small class="fw-semibold">{{ $trans->staff->name ?? 'Staff' }}</small>
-                                <small class="text-muted d-block" style="font-size: 10px;">{{ $trans->staff->department ?? '' }}</small>
-                            </td>
-                            <td><small>{{ $trans->borrow_date_time->format('M d, Y h:i A') }}</small></td>
-                            <td>
-                                <small class="{{ $trans->isOverdue() ? 'text-danger fw-bold' : '' }}">
-                                    {{ $trans->due_date_time->format('M d, Y h:i A') }}
-                                </small>
-                            </td>
-                            <td>
-                                <small>
-                                    {{ $trans->return_date_time ? $trans->return_date_time->format('M d, Y h:i A') : '—' }}
-                                </small>
-                            </td>
-                            <td>
-                                @if($trans->status === 'returned')
-                                    <span class="badge-status-returned"><i class="fa-solid fa-check me-1"></i> Returned</span>
-                                @elseif($trans->status === 'overdue' || $trans->isOverdue())
-                                    <span class="badge-status-overdue"><i class="fa-solid fa-triangle-exclamation me-1"></i> Overdue</span>
-                                @else
-                                    <span class="badge-status-ongoing"><i class="fa-solid fa-clock me-1"></i> Ongoing</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($trans->total_penalty > 0)
-                                    <div class="fw-bold {{ $trans->penalty_status === 'paid' ? 'text-success' : 'text-danger' }}">
-                                        ₱{{ number_format($trans->total_penalty, 2) }}
-                                        <small class="d-block" style="font-size: 10px;">
-                                            @if($trans->penalty_status === 'paid')
-                                                (Paid)
-                                            @else
-                                                ({{ $trans->penalty_days }} day(s) late)
+                                <div class="d-flex flex-column gap-1">
+                                    @foreach($trans->items as $item)
+                                        <div class="d-flex align-items-center gap-1.5 text-nowrap">
+                                            <span class="badge bg-light text-dark border px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1"
+                                                style="font-size: 12px; border-color: #e2e8f0 !important;">
+                                                <i class="fa-solid fa-cube text-muted" style="font-size: 10px;"></i>
+                                                {{ $item->item_name }}
+                                            </span>
+                                            @if($item->item_location)
+                                                <span class="text-muted small" style="font-size: 11px;">({{ $item->item_location }})</span>
                                             @endif
-                                        </small>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="fw-semibold text-dark" style="font-size: 12.5px;">{{ $trans->staff->name ?? 'Staff' }}</div>
+                                <div class="text-muted small" style="font-size: 11px;">{{ $trans->staff->department ?? 'General' }}</div>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="fw-semibold text-dark" style="font-size: 12.5px;">
+                                    {{ $trans->borrow_date_time->format('M d, Y') }}
+                                </div>
+                                <div class="text-muted small" style="font-size: 11.5px;">
+                                    <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $trans->borrow_date_time->format('h:i A') }}
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="fw-semibold {{ $trans->isOverdue() ? 'text-danger fw-bold' : 'text-dark' }}" style="font-size: 12.5px;">
+                                    {{ $trans->due_date_time->format('M d, Y') }}
+                                </div>
+                                <div class="{{ $trans->isOverdue() ? 'text-danger fw-semibold' : 'text-muted' }} small" style="font-size: 11.5px;">
+                                    <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $trans->due_date_time->format('h:i A') }}
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                @if($trans->return_date_time)
+                                    <div class="fw-semibold text-dark" style="font-size: 12.5px;">{{ $trans->return_date_time->format('M d, Y') }}</div>
+                                    <div class="text-muted small" style="font-size: 11.5px;">
+                                        <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $trans->return_date_time->format('h:i A') }}
                                     </div>
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
-                            <td class="text-end">
-                                <a href="{{ route('student.borrowings.show', $trans) }}" class="btn btn-sm btn-outline-primary" title="View details">
-                                    <i class="fa-solid fa-eye"></i>
+                            <td class="text-nowrap">
+                                @if($trans->status === 'returned')
+                                    <span class="badge-status-returned"><i class="fa-solid fa-circle-check"></i> Returned</span>
+                                @elseif($trans->status === 'overdue' || $trans->isOverdue())
+                                    <span class="badge-status-overdue"><i class="fa-solid fa-triangle-exclamation"></i> Overdue</span>
+                                @else
+                                    <span class="badge-status-ongoing"><i class="fa-solid fa-clock"></i> Ongoing</span>
+                                @endif
+                            </td>
+                            <td class="text-nowrap">
+                                @if($trans->total_penalty > 0)
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold {{ $trans->penalty_status === 'paid' ? 'text-success' : 'text-danger' }}" style="font-size: 13px;">
+                                            ₱{{ number_format($trans->total_penalty, 2) }}
+                                        </span>
+                                        <div>
+                                            @if($trans->penalty_status === 'paid')
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5" style="font-size: 9.5px; font-weight: 700;">PAID</span>
+                                            @else
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-1.5 py-0.5" style="font-size: 9.5px; font-weight: 700;">UNPAID ({{ $trans->penalty_days }}d)</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-muted" style="font-size: 13px;">—</span>
+                                @endif
+                            </td>
+                            <td class="text-end pe-4 text-nowrap">
+                                <a href="{{ route('student.borrowings.show', $trans) }}"
+                                    class="btn btn-sm btn-light border shadow-sm text-secondary d-inline-flex align-items-center justify-content-center"
+                                    style="width: 32px; height: 32px; border-radius: 6px;"
+                                    title="View details">
+                                    <i class="fa-solid fa-eye text-dark"></i>
                                 </a>
                             </td>
                         </tr>

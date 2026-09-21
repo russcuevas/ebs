@@ -77,9 +77,14 @@
 </div>
 
 <!-- Transactions Table -->
-<div class="card card-ub">
-    <div class="card-header-ub d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <span><i class="fa-solid fa-clock-rotate-left me-2"></i> Borrowing History & Logs</span>
+<div class="card card-ub overflow-hidden">
+    <div class="card-header-ub d-flex justify-content-between align-items-center flex-wrap gap-2 py-3 px-4">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width: 32px; height: 32px; background: rgba(123, 17, 19, 0.08); color: var(--ub-maroon); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <span class="fw-bold fs-6" style="color: var(--ub-maroon);">Borrowing History & Logs</span>
+        </div>
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('staff.dashboard') }}" class="btn btn-sm {{ !request('status') ? 'btn-dark' : 'btn-outline-secondary bg-white' }}">All</a>
             <a href="{{ route('staff.dashboard', ['status' => 'ongoing']) }}" class="btn btn-sm {{ request('status') === 'ongoing' ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary bg-white' }}">Ongoing</a>
@@ -90,107 +95,152 @@
             <a href="{{ route('staff.dashboard', ['status' => 'returned']) }}" class="btn btn-sm {{ request('status') === 'returned' ? 'btn-success fw-bold' : 'btn-outline-secondary bg-white' }}">Returned</a>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle datatable w-100">
-                <thead class="table-light">
+            <table class="table table-hover align-middle datatable w-100 mb-0">
+                <thead>
                     <tr>
-                        <th>Ref No.</th>
+                        <th class="ps-4">Ref No.</th>
                         <th>Student</th>
                         <th>Borrowed Items</th>
                         <th>Date Borrowed</th>
                         <th>Due Date</th>
                         <th>Status</th>
                         <th>Penalty (₱5/day)</th>
-                        <th class="text-end">Actions</th>
+                        <th class="text-end pe-4">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if(count($transactions) > 0)
                         @foreach($transactions as $trans)
                         <tr>
-                            <td class="font-monospace fw-bold" style="color: var(--ub-maroon);">
-                                <a href="{{ route('staff.borrowings.show', $trans) }}" style="color: var(--ub-maroon);" class="text-decoration-none">
-                                    {{ $trans->reference_no }}
+                            <td class="ps-4 text-nowrap">
+                                <a href="{{ route('staff.borrowings.show', $trans) }}"
+                                    class="text-decoration-none fw-bold font-monospace d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded"
+                                    style="color: var(--ub-maroon); background: #fff1f2; border: 1px solid #ffe4e6; font-size: 12px;">
+                                    <i class="fa-solid fa-barcode text-muted" style="font-size: 11px;"></i>
+                                    <span>{{ $trans->reference_no }}</span>
                                 </a>
                             </td>
                             <td>
-                                <div class="fw-bold">{{ $trans->student->name ?? 'N/A' }}</div>
-                                <small class="text-muted">{{ $trans->student->student_id ?? '' }} &bull; {{ $trans->student->department ?? '' }}</small>
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm flex-shrink-0"
+                                        style="width: 34px; height: 34px; font-size: 13px; background: linear-gradient(135deg, #7B1113 0%, #991B1E 100%);">
+                                        {{ strtoupper(substr($trans->student->name ?? 'S', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark text-nowrap" style="font-size: 13.5px;">{{ $trans->student->name ?? 'N/A' }}</div>
+                                        <div class="d-flex align-items-center gap-1.5 text-muted small text-nowrap" style="font-size: 11.5px;">
+                                            <span class="badge bg-light text-secondary border px-1.5 py-0.5 fw-semibold">{{ $trans->student->student_id ?? 'N/A' }}</span>
+                                            <span class="text-truncate" style="max-width: 140px;" title="{{ $trans->student->department ?? '' }}">{{ $trans->student->department ?? '' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                             <td>
-                                @foreach($trans->items as $item)
-                                    <div>
-                                        <i class="fa-solid fa-cube text-secondary me-1" style="font-size: 11px;"></i>
-                                        <strong>{{ $item->item_name }}</strong> 
-                                        <small class="text-muted">({{ $item->item_location }})</small>
-                                        @if($item->status === 'returned')
-                                            <span class="badge bg-success-subtle text-success ms-1" style="font-size: 9px;"><i class="fa-solid fa-check"></i> Returned</span>
+                                <div class="d-flex flex-column gap-1">
+                                    @foreach($trans->items as $item)
+                                        <div class="d-flex align-items-center gap-1.5 text-nowrap">
+                                            <span class="badge bg-light text-dark border px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1"
+                                                style="font-size: 12px; border-color: #e2e8f0 !important;">
+                                                <i class="fa-solid fa-box text-muted" style="font-size: 10px;"></i>
+                                                {{ $item->item_name }}
+                                            </span>
+                                            @if($item->item_location)
+                                                <span class="text-muted small" style="font-size: 11px;">({{ $item->item_location }})</span>
+                                            @endif
+                                            @if($item->status === 'returned')
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5" style="font-size: 10px;"><i class="fa-solid fa-check"></i> Returned</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                    @if($trans->items->count() > 1 && $trans->status !== 'returned' && $trans->returnedItemsCount() > 0)
+                                        <div class="mt-1">
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-0.5" style="font-size: 10.5px;">
+                                                <i class="fa-solid fa-list-check me-1"></i> {{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }} Returned
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="fw-semibold text-dark" style="font-size: 12.5px;">
+                                    {{ $trans->borrow_date_time->format('M d, Y') }}
+                                </div>
+                                <div class="text-muted small" style="font-size: 11.5px;">
+                                    <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $trans->borrow_date_time->format('h:i A') }}
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="fw-semibold {{ $trans->isOverdue() ? 'text-danger fw-bold' : 'text-dark' }}" style="font-size: 12.5px;">
+                                    {{ $trans->due_date_time->format('M d, Y') }}
+                                </div>
+                                <div class="{{ $trans->isOverdue() ? 'text-danger fw-semibold' : 'text-muted' }} small" style="font-size: 11.5px;">
+                                    <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $trans->due_date_time->format('h:i A') }}
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                @if($trans->status === 'returned')
+                                    <span class="badge-status-returned"><i class="fa-solid fa-circle-check"></i> Returned</span>
+                                @elseif($trans->status === 'overdue' || $trans->isOverdue())
+                                    <span class="badge-status-overdue"><i class="fa-solid fa-triangle-exclamation"></i> Overdue</span>
+                                    @if($trans->returnedItemsCount() > 0)
+                                        <small class="d-block text-warning fw-bold mt-1" style="font-size: 10.5px;">Partial ({{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }})</small>
+                                    @endif
+                                @else
+                                    <span class="badge-status-ongoing"><i class="fa-solid fa-clock"></i> Ongoing</span>
+                                    @if($trans->returnedItemsCount() > 0)
+                                        <small class="d-block text-primary fw-bold mt-1" style="font-size: 10.5px;">Partial ({{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }})</small>
+                                    @endif
+                                @endif
+                            </td>
+                            <td class="text-nowrap">
+                                @if($trans->total_penalty > 0)
+                                    <div class="d-flex flex-column">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span class="fw-bold {{ $trans->penalty_status === 'paid' ? 'text-success' : 'text-danger' }}" style="font-size: 13px;">
+                                                ₱{{ number_format($trans->total_penalty, 2) }}
+                                            </span>
+                                            @if($trans->penalty_status === 'paid')
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5" style="font-size: 9.5px; font-weight: 700;">PAID</span>
+                                            @else
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-1.5 py-0.5" style="font-size: 9.5px; font-weight: 700;">UNPAID</span>
+                                            @endif
+                                        </div>
+                                        @if($trans->penalty_status === 'unpaid')
+                                            <div>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-success mt-1 py-0 px-2 fw-bold d-inline-flex align-items-center gap-1" 
+                                                        style="font-size: 11px;" 
+                                                        onclick="openCollectModal('{{ route('staff.borrowings.settle-penalty', $trans) }}', '{{ $trans->reference_no }}', '{{ addslashes($trans->student->name ?? 'Student') }}', {{ (float) $trans->total_penalty }})"
+                                                        title="Collect Cash Penalty Payment">
+                                                    <i class="fa-solid fa-hand-holding-dollar"></i> Collect
+                                                </button>
+                                            </div>
+                                        @else
+                                            <small class="text-muted" style="font-size: 10.5px;">
+                                                Paid {{ $trans->penalty_paid_at ? $trans->penalty_paid_at->format('M d') : '' }}
+                                            </small>
                                         @endif
                                     </div>
-                                @endforeach
-                                @if($trans->items->count() > 1 && $trans->status !== 'returned' && $trans->returnedItemsCount() > 0)
-                                    <div class="mt-1">
-                                        <span class="badge bg-info-subtle text-info border border-info-subtle" style="font-size: 10px;">
-                                            <i class="fa-solid fa-list-check me-1"></i> {{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }} Returned
-                                        </span>
-                                    </div>
-                                @endif
-                            </td>
-                            <td><small>{{ $trans->borrow_date_time->format('M d, Y h:i A') }}</small></td>
-                            <td>
-                                <small class="{{ $trans->isOverdue() ? 'text-danger fw-bold' : '' }}">
-                                    {{ $trans->due_date_time->format('M d, Y h:i A') }}
-                                </small>
-                            </td>
-                            <td>
-                                @if($trans->status === 'returned')
-                                    <span class="badge-status-returned"><i class="fa-solid fa-check me-1"></i> Returned</span>
-                                @elseif($trans->status === 'overdue' || $trans->isOverdue())
-                                    <span class="badge-status-overdue"><i class="fa-solid fa-triangle-exclamation me-1"></i> Overdue</span>
-                                    @if($trans->returnedItemsCount() > 0)
-                                        <small class="d-block text-warning fw-bold mt-1" style="font-size: 10px;">Partial ({{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }})</small>
-                                    @endif
                                 @else
-                                    <span class="badge-status-ongoing"><i class="fa-solid fa-clock me-1"></i> Ongoing</span>
-                                    @if($trans->returnedItemsCount() > 0)
-                                        <small class="d-block text-primary fw-bold mt-1" style="font-size: 10px;">Partial ({{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }})</small>
-                                    @endif
+                                    <span class="text-muted" style="font-size: 13px;">—</span>
                                 @endif
                             </td>
-                            <td>
-                                @if($trans->total_penalty > 0)
-                                    <div class="fw-bold {{ $trans->penalty_status === 'paid' ? 'text-success' : 'text-danger' }}">
-                                        ₱{{ number_format($trans->total_penalty, 2) }}
-                                        <span class="badge {{ $trans->penalty_status === 'paid' ? 'bg-success' : 'bg-danger' }} ms-1" style="font-size: 10px;">
-                                            {{ strtoupper($trans->penalty_status) }}
-                                        </span>
-                                    </div>
-                                    @if($trans->penalty_status === 'unpaid')
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-success mt-1 py-0 px-2 fw-semibold" 
-                                                style="font-size: 11px;" 
-                                                onclick="openCollectModal('{{ route('staff.borrowings.settle-penalty', $trans) }}', '{{ $trans->reference_no }}', '{{ addslashes($trans->student->name ?? 'Student') }}', {{ (float) $trans->total_penalty }})"
-                                                title="Collect Cash Penalty Payment">
-                                            <i class="fa-solid fa-hand-holding-dollar me-1"></i> Collect
-                                        </button>
-                                    @else
-                                        <small class="text-muted d-block" style="font-size: 10px;">
-                                            Paid {{ $trans->penalty_paid_at ? $trans->penalty_paid_at->format('M d') : '' }}
-                                        </small>
-                                    @endif
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('staff.borrowings.show', $trans) }}" class="btn btn-outline-primary" title="View details">
-                                        <i class="fa-solid fa-eye"></i>
+                            <td class="text-end pe-4 text-nowrap">
+                                <div class="d-inline-flex gap-1 align-items-center">
+                                    <a href="{{ route('staff.borrowings.show', $trans) }}"
+                                        class="btn btn-sm btn-light border shadow-sm text-secondary d-inline-flex align-items-center justify-content-center"
+                                        style="width: 32px; height: 32px; border-radius: 6px;"
+                                        title="View details">
+                                        <i class="fa-solid fa-eye text-dark"></i>
                                     </a>
                                     @if($trans->status !== 'returned')
-                                        <a href="{{ route('staff.borrowings.return', $trans) }}" class="btn btn-success" title="Process Return">
-                                            <i class="fa-solid fa-arrow-rotate-left me-1"></i> Return
+                                        <a href="{{ route('staff.borrowings.return', $trans) }}"
+                                            class="btn btn-sm btn-success fw-bold d-inline-flex align-items-center gap-1 px-2.5 py-1"
+                                            style="font-size: 12px;"
+                                            title="Process Return">
+                                            <i class="fa-solid fa-arrow-rotate-left"></i> Return
                                             @if($trans->items->count() > 1 && $trans->returnedItemsCount() > 0)
                                                 ({{ $trans->returnedItemsCount() }}/{{ $trans->totalItemsCount() }})
                                             @endif

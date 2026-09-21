@@ -133,10 +133,15 @@
 
                 <!-- Active Borrowings of Student if any -->
                 <div id="activeBorrowingsListSection" class="mb-4 d-none">
-                    <h6 class="fw-bold small text-muted text-uppercase mb-2">Currently Borrowed Equipment:</h6>
-                    <ul class="list-group list-group-flush border rounded small" id="activeBorrowingsList">
-                        <!-- injected via JS -->
-                    </ul>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold small text-muted text-uppercase mb-0">
+                            <i class="fa-solid fa-boxes-stacked me-1 text-danger"></i> Currently Borrowed Equipment & Status
+                        </h6>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-bold" id="activeBorrowingsCountBadge"></span>
+                    </div>
+                    <div class="d-flex flex-column gap-3" id="activeBorrowingsContainer">
+                        <!-- Dynamically injected via JS -->
+                    </div>
                 </div>
 
                 <!-- Action Button -->
@@ -300,21 +305,86 @@
                 .html('<i class="fa-solid fa-plus-circle me-1"></i> Record Borrowing for ' + student.name);
         }
 
-        // Render active borrowings list
+        // Render active borrowings list with item-by-item breakdown
         if (activeBorrowings.length > 0) {
             $('#activeBorrowingsListSection').removeClass('d-none');
-            let listHtml = '';
+            $('#activeBorrowingsCountBadge').text(activeBorrowings.length + (activeBorrowings.length > 1 ? ' Active Borrowings' : ' Active Borrowing'));
+
+            let html = '';
             activeBorrowings.forEach(function(trans) {
-                const isOverdue = trans.status === 'overdue';
-                listHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong class="font-monospace">${trans.reference_no}</strong>
-                        <small class="text-muted d-block">Due: ${trans.due_date_time}</small>
+                const isOverdue = trans.is_overdue || trans.status === 'overdue';
+                const statusBadge = isOverdue
+                    ? `<span class="badge bg-danger text-white px-2 py-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> OVERDUE</span>`
+                    : `<span class="badge bg-warning text-dark px-2 py-1"><i class="fa-solid fa-clock me-1"></i> ONGOING</span>`;
+
+                let itemsHtml = '';
+                if (trans.items && trans.items.length > 0) {
+                    trans.items.forEach(function(item) {
+                        if (item.is_returned) {
+                            itemsHtml += `
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border border-light-subtle mb-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style="font-size: 11px;">
+                                            <i class="fa-solid fa-circle-check me-1"></i> Nabalik Na (Returned)
+                                        </span>
+                                        <span class="text-decoration-line-through text-muted fw-semibold">${item.name}</span>
+                                        ${item.location ? `<small class="text-muted">(${item.location})</small>` : ''}
+                                    </div>
+                                    <span class="text-success small fw-bold"><i class="fa-solid fa-check"></i></span>
+                                </div>`;
+                        } else {
+                            itemsHtml += `
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded ${isOverdue ? 'bg-danger-subtle bg-opacity-25 border border-danger' : 'bg-warning-subtle bg-opacity-25 border border-warning'} mb-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="badge ${isOverdue ? 'bg-danger text-white' : 'bg-warning text-dark'} px-2 py-1 fw-bold" style="font-size: 11px;">
+                                            <i class="fa-solid fa-hand-holding-box me-1"></i> DI PA NABABALIK
+                                        </span>
+                                        <strong class="text-dark">${item.name}</strong>
+                                        ${item.location ? `<span class="text-muted small">(${item.location})</span>` : ''}
+                                    </div>
+                                    <span class="badge bg-white text-danger border shadow-sm small fw-semibold">Pending Return</span>
+                                </div>`;
+                        }
+                    });
+                } else {
+                    itemsHtml = `<div class="text-muted small p-2">No individual item details recorded.</div>`;
+                }
+
+                html += `
+                <div class="card border ${isOverdue ? 'border-danger' : 'border-warning'} shadow-sm">
+                    <div class="card-header ${isOverdue ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-dark'} d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 px-3">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="font-monospace fw-bold px-2 py-0.5 bg-white rounded border" style="font-size: 12px; color: var(--ub-maroon);">
+                                <i class="fa-solid fa-barcode text-muted me-1"></i>${trans.reference_no}
+                            </span>
+                            <span class="small fw-semibold">
+                                Due: <strong class="${isOverdue ? 'text-danger' : 'text-dark'}">${trans.due_date_formatted || 'N/A'}</strong>
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            ${statusBadge}
+                            <a href="${trans.return_url}" class="btn btn-sm btn-success fw-bold px-2.5 py-1 d-inline-flex align-items-center gap-1" style="font-size: 11.5px;" title="Process Return Now">
+                                <i class="fa-solid fa-arrow-rotate-left"></i> Process Return
+                            </a>
+                        </div>
                     </div>
-                    <span class="badge ${isOverdue ? 'bg-danger' : 'bg-warning text-dark'}">${trans.status.toUpperCase()}</span>
-                </li>`;
+                    <div class="card-body p-3">
+                        <div class="small fw-bold text-muted text-uppercase mb-2" style="font-size: 11px;">
+                            <i class="fa-solid fa-list-check me-1"></i> Items Status Breakdown:
+                        </div>
+                        <div class="items-list-wrapper">
+                            ${itemsHtml}
+                        </div>
+                        ${trans.penalty_amount > 0 ? `
+                            <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center text-danger small fw-bold">
+                                <span><i class="fa-solid fa-sack-xmark me-1"></i> Running Late Penalty:</span>
+                                <span>₱${parseFloat(trans.penalty_amount).toFixed(2)} (${(trans.penalty_status || 'unpaid').toUpperCase()})</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>`;
             });
-            $('#activeBorrowingsList').html(listHtml);
+            $('#activeBorrowingsContainer').html(html);
         } else {
             $('#activeBorrowingsListSection').addClass('d-none');
         }

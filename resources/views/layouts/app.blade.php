@@ -24,6 +24,10 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 
+    <!-- Select2 CSS & Bootstrap 5 Theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
@@ -417,31 +421,40 @@
         .badge-status-ongoing {
             background-color: #FEF3C7;
             color: #92400E;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
             border: 1px solid #FDE68A;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .badge-status-returned {
-            background-color: #D1FAE5;
-            color: #065F46;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            border: 1px solid #A7F3D0;
+            background-color: #DCFCE7;
+            color: #166534;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            border: 1px solid #BBF7D0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .badge-status-overdue {
             background-color: #FEE2E2;
             color: #991B1B;
             font-weight: 700;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
             border: 1px solid #FECACA;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             animation: pulse-red 2s infinite;
         }
 
@@ -457,6 +470,238 @@
             100% {
                 box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
             }
+        }
+
+        /* Modern DataTables and Table UI Styling */
+        .dataTables_wrapper {
+            padding: 0;
+        }
+
+        .dataTables_wrapper .row:first-child {
+            padding: 14px 18px 12px 18px;
+            align-items: center;
+            margin: 0;
+        }
+
+        .dataTables_wrapper .row:last-child {
+            padding: 12px 18px;
+            align-items: center;
+            border-top: 1px solid var(--ub-border);
+            background: #fafafa;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            margin: 0;
+        }
+
+        .dataTables_wrapper .dataTables_length label {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 4px 24px 4px 8px;
+            font-size: 13px;
+            color: #334155;
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+        .dataTables_wrapper .dataTables_filter label {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #1e293b;
+            background-color: #ffffff;
+            min-width: 220px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: var(--ub-maroon);
+            box-shadow: 0 0 0 3px rgba(123, 17, 19, 0.12);
+            outline: none;
+        }
+
+        .dataTables_info {
+            font-size: 12.5px;
+            color: #64748b;
+            font-weight: 500;
+            padding-top: 4px !important;
+        }
+
+        .dataTables_paginate {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .dataTables_paginate .pagination {
+            margin: 0;
+            gap: 4px;
+        }
+
+        .dataTables_paginate .page-item .page-link {
+            border-radius: 6px !important;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .dataTables_paginate .page-item .page-link:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: var(--ub-maroon);
+        }
+
+        .dataTables_paginate .page-item.active .page-link {
+            background-color: var(--ub-maroon) !important;
+            border-color: var(--ub-maroon) !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 4px rgba(123, 17, 19, 0.25);
+        }
+
+        .dataTables_paginate .page-item.disabled .page-link {
+            background-color: #f8fafc;
+            color: #94a3b8;
+            border-color: #e2e8f0;
+        }
+
+        /* Clean Modern Table Headers & Rows */
+        table.dataTable {
+            margin: 0 !important;
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+
+        table.dataTable thead th {
+            background: #f8fafc !important;
+            color: #475569 !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.6px !important;
+            padding: 13px 16px !important;
+            border-top: 1px solid #e2e8f0 !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            white-space: nowrap !important;
+            position: relative;
+        }
+
+        table.dataTable tbody td {
+            padding: 13px 16px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            color: #1e293b;
+            font-size: 13px;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: #fcfdfe !important;
+        }
+
+        table.dataTable.no-footer {
+            border-bottom: 1px solid var(--ub-border) !important;
+        }
+
+        /* Select2 Custom UB Clean White Styling */
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13.5px;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: var(--ub-maroon);
+            box-shadow: 0 0 0 3px rgba(123, 17, 19, 0.12);
+            background-color: #ffffff;
+        }
+
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            background-color: #ffffff;
+            overflow: hidden;
+            z-index: 1060;
+        }
+
+        .select2-container--bootstrap-5 .select2-search--dropdown {
+            padding: 8px 10px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13.5px;
+            background-color: #ffffff;
+            color: #1e293b;
+        }
+
+        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field:focus {
+            border-color: var(--ub-maroon);
+            box-shadow: 0 0 0 3px rgba(123, 17, 19, 0.1);
+            outline: none;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__options {
+            background-color: #ffffff;
+            padding: 4px;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option {
+            background-color: #ffffff;
+            color: #1e293b;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            transition: all 0.15s ease;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+            background-color: #fff1f2 !important;
+            color: #7B1113 !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background-color: #ffe4e6 !important;
+            color: #7B1113 !important;
+            font-weight: 700;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            padding-left: 12px;
+            padding-right: 28px;
+            color: #1e293b;
         }
 
         .form-control:focus,
@@ -918,6 +1163,7 @@
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
         // Mobile Sidebar Toggle Handling
@@ -973,7 +1219,11 @@
         $(document).ready(function() {
             if ($('.datatable').length) {
                 $('.datatable').DataTable({
-                    responsive: true,
+                    responsive: false,
+                    autoWidth: false,
+                    columnDefs: [
+                        { orderable: false, targets: -1 }
+                    ],
                     language: {
                         search: "_INPUT_",
                         searchPlaceholder: "Search records...",

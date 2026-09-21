@@ -89,50 +89,57 @@
                             @endif
 
                             <!-- Dropdown to directly switch to another student -->
-                            <div id="changeStudentDropdownSection" class="p-3 bg-light rounded border mb-2 d-none">
-                                <label for="change_student_select" class="form-label small fw-semibold text-dark mb-1">
-                                    <i class="fa-solid fa-arrows-rotate me-1 text-warning"></i> Switch to Another Student:
+                            <div id="changeStudentDropdownSection" class="p-3 bg-light rounded border mb-2">
+                                <label for="change_student_select" class="form-label small fw-semibold text-dark mb-1 d-flex align-items-center justify-content-between">
+                                    <span><i class="fa-solid fa-arrows-rotate me-1 text-warning"></i> Switch / Search Another Student:</span>
+                                    <a href="{{ route('staff.borrowings.create') }}" class="text-danger small text-decoration-none fw-normal">
+                                        <i class="fa-solid fa-xmark me-1"></i> Deselect
+                                    </a>
                                 </label>
-                                <select id="change_student_select" class="form-select form-select-sm"
-                                    onchange="if(this.value) window.location.href='{{ route('staff.borrowings.create') }}?student_id=' + this.value">
-                                    <option value="">-- Choose Registered Student --</option>
+                                <select id="change_student_select" class="form-select select2-student" style="width: 100%;">
+                                    <option value="">-- Type Student ID or Name to Switch --</option>
                                     @foreach ($allStudents as $st)
                                         <option value="{{ $st->id }}"
+                                            data-student-id="{{ $st->student_id }}"
+                                            data-name="{{ $st->name }}"
+                                            data-department="{{ $st->department }}"
+                                            data-email="{{ $st->email }}"
+                                            data-avatar="{{ $st->avatar_url }}"
                                             {{ $st->id == $selectedStudent->id ? 'selected' : '' }}>
-                                            {{ $st->name }} ({{ $st->student_id }} - {{ $st->department }})
+                                            {{ $st->student_id }} — {{ $st->name }} ({{ $st->department }})
                                         </option>
                                     @endforeach
                                 </select>
-                                <div class="d-flex justify-content-between align-items-center mt-2 pt-1 border-top">
-                                    <a href="{{ route('staff.borrowings.create') }}"
-                                        class="small text-danger text-decoration-none">
-                                        <i class="fa-solid fa-trash-can me-1"></i> Remove Student (Reset)
-                                    </a>
-                                    <a href="{{ route('staff.scanner.index') }}"
-                                        class="small text-primary text-decoration-none fw-semibold">
+                            </div>
+                        @else
+                            <!-- If student not yet scanned, allow searchable Select2 dropdown or scanner link -->
+                            <div class="mb-3">
+                                <label for="student_select" class="form-label fw-semibold">
+                                    <i class="fa-solid fa-magnifying-glass me-1 text-danger"></i> Search & Select Student <span class="text-danger">*</span>
+                                </label>
+                                <select name="student_id" id="student_select"
+                                    class="form-select select2-student @error('student_id') is-invalid @enderror" style="width: 100%;">
+                                    <option value="">-- Search Student ID (e.g. UB-2024-00123) or Name --</option>
+                                    @foreach ($allStudents as $st)
+                                        <option value="{{ $st->id }}"
+                                            data-student-id="{{ $st->student_id }}"
+                                            data-name="{{ $st->name }}"
+                                            data-department="{{ $st->department }}"
+                                            data-email="{{ $st->email }}"
+                                            data-avatar="{{ $st->avatar_url }}"
+                                            {{ old('student_id') == $st->id ? 'selected' : '' }}>
+                                            {{ $st->student_id }} — {{ $st->name }} ({{ $st->department }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted" style="font-size: 11px;">
+                                        <i class="fa-solid fa-keyboard me-1"></i> Type <strong>Student ID</strong> (e.g. <code>UB-2024-00123</code>) or name to filter.
+                                    </small>
+                                    <a href="{{ route('staff.scanner.index') }}" class="btn btn-sm btn-link p-0 text-decoration-none fw-bold" style="color: var(--ub-maroon); font-size: 11.5px;">
                                         <i class="fa-solid fa-qrcode me-1"></i> Scan QR Camera
                                     </a>
                                 </div>
-                            </div>
-                        @else
-                            <!-- If student not yet scanned, allow quick dropdown or scanner link -->
-                            <div class="mb-3">
-                                <label for="student_select" class="form-label fw-semibold">Select Student <span
-                                        class="text-danger">*</span></label>
-                                <select name="student_id" id="student_select"
-                                    class="form-select @error('student_id') is-invalid @enderror"
-                                    onchange="if(this.value) window.location.href='{{ route('staff.borrowings.create') }}?student_id=' + this.value">
-                                    <option value="">-- Select Student or Scan QR --</option>
-                                    @foreach ($allStudents as $st)
-                                        <option value="{{ $st->id }}"
-                                            {{ old('student_id') == $st->id ? 'selected' : '' }}>
-                                            {{ $st->name }} ({{ $st->student_id }} - {{ $st->department }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted" style="font-size: 11px;">Recommended: <a
-                                        href="{{ route('staff.scanner.index') }}" class="fw-bold text-danger">Scan the
-                                        student's QR code</a> for instant lookup.</small>
                             </div>
                         @endif
 
@@ -430,6 +437,81 @@
             const tendered = parseFloat($(this).val()) || 0;
             const change = Math.max(0, tendered - currentStudentPenalty);
             $('#modalStudentChangeAmount').text('₱' + change.toFixed(2));
+        });
+
+        // Initialize Select2 on Student Dropdown with search by ID, name, dept
+        function formatStudentOption(state) {
+            if (!state.id) {
+                return state.text;
+            }
+            const el = $(state.element);
+            const studentId = el.data('student-id') || '';
+            const dept = el.data('department') || '';
+            const name = el.data('name') || state.text;
+            const avatar = el.data('avatar');
+
+            const avatarHtml = avatar 
+                ? `<img src="${avatar}" class="rounded-circle border me-2.5 flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;">`
+                : `<span class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold me-2.5 flex-shrink-0" style="width: 32px; height: 32px; font-size: 12px; background: #fff1f2; color: var(--ub-maroon); border: 1px solid #ffe4e6;">${name.charAt(0).toUpperCase()}</span>`;
+
+            return $(`
+                <div class="d-flex align-items-center justify-content-between py-1 px-1">
+                    <div class="d-flex align-items-center">
+                        ${avatarHtml}
+                        <div>
+                            <div class="fw-bold" style="font-size: 13.5px; line-height: 1.2; color: #0f172a;">${name}</div>
+                            <div class="small mt-0.5" style="font-size: 11.5px; color: #64748b;">
+                                <span class="badge bg-white text-dark border me-1 font-monospace" style="font-size: 11px;">${studentId}</span>
+                                <span>${dept}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function formatStudentSelection(state) {
+            if (!state.id) {
+                return state.text;
+            }
+            const el = $(state.element);
+            const studentId = el.data('student-id') || '';
+            const name = el.data('name') || state.text;
+            return studentId ? `${studentId} — ${name}` : name;
+        }
+
+        $('.select2-student').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Search by Student ID (e.g. UB-2024-00123) or Name --',
+            allowClear: true,
+            width: '100%',
+            templateResult: formatStudentOption,
+            templateSelection: formatStudentSelection,
+            matcher: function(params, data) {
+                if ($.trim(params.term) === '') {
+                    return data;
+                }
+                if (typeof data.text === 'undefined') {
+                    return null;
+                }
+                const term = params.term.toLowerCase();
+                const text = data.text.toLowerCase();
+                const el = $(data.element);
+                const studentId = (el.data('student-id') || '').toString().toLowerCase();
+                const dept = (el.data('department') || '').toString().toLowerCase();
+                const email = (el.data('email') || '').toString().toLowerCase();
+                const name = (el.data('name') || '').toString().toLowerCase();
+
+                if (text.indexOf(term) > -1 || studentId.indexOf(term) > -1 || dept.indexOf(term) > -1 || email.indexOf(term) > -1 || name.indexOf(term) > -1) {
+                    return data;
+                }
+                return null;
+            }
+        }).on('select2:select', function(e) {
+            const selectedId = e.params.data.id;
+            if (selectedId) {
+                window.location.href = "{{ route('staff.borrowings.create') }}?student_id=" + selectedId;
+            }
         });
     </script>
 @endpush
