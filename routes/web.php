@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\Staff;
 use App\Http\Controllers\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+// Cron Job Trigger Webhook (for cron-job.org or external scheduler)
+Route::match(['get', 'post'], '/cron/send-due-reminders', [CronController::class, 'sendDueReminders'])->name('cron.send-due-reminders');
 
 // Root redirect
 Route::get('/', function () {

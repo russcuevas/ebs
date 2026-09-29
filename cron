@@ -1,0 +1,13 @@
+pag naka deploy na ito ilalagay
+
+https://your-domain-or-live-url/cron/send-due-reminders
+
+Paano I-setup sa cron-job.org:
+Mag-login sa cron-job.org.
+I-click ang "Create Cronjob".
+Ilagay ang mga sumusunod:
+Title / Name: UB EBS - Due Reminders & Overdue Processor
+URL: https://your-domain-or-live-url/cron/send-due-reminders
+Schedule: Piliin ang schedule (Recommended: Every 15 minutes, Every hour, o Daily at 8:00 AM).
+Request Method: GET
+I-click ang Save.
