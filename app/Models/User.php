@@ -83,6 +83,38 @@ class User extends Authenticatable
         return $this->role === 'student';
     }
 
+    public function isTeacher(): bool
+    {
+        return $this->role === 'teacher';
+    }
+
+    public function isBorrower(): bool
+    {
+        return in_array($this->role, ['student', 'teacher']);
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'Admin',
+            'staff' => 'Staff (Bantay)',
+            'teacher' => 'Teacher / Faculty',
+            'student' => 'Student',
+            default => ucfirst((string) $this->role),
+        };
+    }
+
+    public function getRoleBadgeClassAttribute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'bg-danger text-white',
+            'staff' => 'bg-primary text-white',
+            'teacher' => 'bg-info text-dark',
+            'student' => 'bg-secondary text-white',
+            default => 'bg-light text-dark',
+        };
+    }
+
     public function borrowings(): HasMany
     {
         return $this->hasMany(BorrowingTransaction::class, 'student_id');
@@ -157,7 +189,8 @@ class User extends Authenticatable
      */
     public function getQrCodeSvg(): string
     {
-        $payload = $this->qr_code_token ?? ('UB-STUDENT-' . $this->id . '-' . md5($this->email));
+        $defaultPrefix = $this->role === 'teacher' ? 'UB-TEACHER-' : 'UB-STUDENT-';
+        $payload = $this->qr_code_token ?? ($defaultPrefix . $this->id . '-' . md5($this->email));
         $options = new QROptions([
             'outputInterface' => \chillerlan\QRCode\Output\QRMarkupSVG::class,
             'outputBase64' => false,

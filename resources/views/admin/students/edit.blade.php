@@ -43,6 +43,20 @@
                         @enderror
                     </div>
 
+                    <!-- Role: Student or Teacher -->
+                    <div class="mb-3">
+                        <label for="role" class="form-label fw-semibold">Role <span class="text-danger">*</span></label>
+                        <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
+                            <option value="student" {{ old('role', $student->role) === 'student' ? 'selected' : '' }}>🎓 Student</option>
+                            <option value="teacher" {{ old('role', $student->role) === 'teacher' ? 'selected' : '' }}>👨‍🏫 Teacher / Faculty Member</option>
+                        </select>
+                        @error('role')
+                            <div class="invalid-feedback">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
                     <!-- Student ID -->
                     <div class="mb-3">
                         <label for="student_id" class="form-label fw-semibold">Student ID Number <span class="text-danger">*</span></label>

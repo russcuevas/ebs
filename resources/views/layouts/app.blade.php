@@ -1005,7 +1005,7 @@
                         <div class="user-meta">
                             <div class="user-name" title="{{ Auth::user()->name }}">{{ Auth::user()->name }}</div>
                             <div class="user-role-badge">
-                                {{ ucfirst(Auth::user()->role) }} @if (Auth::user()->department)
+                                {{ Auth::user()->role_label ?? ucfirst(Auth::user()->role) }} @if (Auth::user()->department)
                                     <br> {{ Auth::user()->department }}
                                 @endif
                             </div>
@@ -1058,7 +1058,7 @@
                                 <i class="fa-solid fa-plus-circle"></i>
                                 <span>New Borrowing</span>
                             </a>
-                        @elseif(Auth::user()->isStudent())
+                        @elseif(Auth::user()->isStudent() || Auth::user()->isTeacher())
                             <a class="sidebar-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}"
                                 href="{{ route('student.dashboard') }}">
                                 <i class="fa-solid fa-qrcode"></i>

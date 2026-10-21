@@ -101,7 +101,7 @@
                 <thead>
                     <tr>
                         <th class="ps-4">Ref No.</th>
-                        <th>Student</th>
+                        <th>Borrower</th>
                         <th>Borrowed Items</th>
                         <th>Date Borrowed</th>
                         <th>Due Date</th>
@@ -129,7 +129,12 @@
                                         {{ strtoupper(substr($trans->student->name ?? 'S', 0, 1)) }}
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark text-nowrap" style="font-size: 13.5px;">{{ $trans->student->name ?? 'N/A' }}</div>
+                                        <div class="fw-bold text-dark text-nowrap d-flex align-items-center gap-1.5" style="font-size: 13.5px;">
+                                            <span>{{ $trans->student->name ?? 'N/A' }}</span>
+                                            @if (optional($trans->student)->role === 'teacher')
+                                                <span class="badge bg-info-subtle text-info-emphasis border border-info" style="font-size: 10px;">Teacher</span>
+                                            @endif
+                                        </div>
                                         <div class="d-flex align-items-center gap-1.5 text-muted small text-nowrap" style="font-size: 11.5px;">
                                             <span class="badge bg-light text-secondary border px-1.5 py-0.5 fw-semibold">{{ $trans->student->student_id ?? 'N/A' }}</span>
                                             <span class="text-truncate" style="max-width: 140px;" title="{{ $trans->student->department ?? '' }}">{{ $trans->student->department ?? '' }}</span>

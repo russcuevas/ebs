@@ -24,8 +24,8 @@ class ScannerController extends Controller
             ], 422);
         }
 
-        // Find student by qr_code_token, student_id, or email
-        $student = User::where('role', 'student')
+        // Find borrower (student or teacher) by qr_code_token, student_id, or email
+        $student = User::whereIn('role', ['student', 'teacher'])
             ->where(function ($q) use ($code) {
                 $q->where('qr_code_token', $code)
                   ->orWhere('student_id', $code)
@@ -36,7 +36,7 @@ class ScannerController extends Controller
         if (!$student) {
             return response()->json([
                 'success' => false,
-                'message' => "Student not found with code: '{$code}'. Please verify the student is registered and verified at @ub.edu.ph.",
+                'message' => "Borrower not found with code: '{$code}'. Please verify the borrower is registered and verified at @ub.edu.ph.",
             ], 404);
         }
 
@@ -102,6 +102,8 @@ class ScannerController extends Controller
                 'phone_number' => $student->phone_number,
                 'avatar_url' => $student->avatar_url,
                 'is_verified' => (bool) $student->email_verified_at,
+                'role' => $student->role,
+                'role_label' => $student->role === 'teacher' ? 'Teacher / Faculty' : 'Student',
             ],
             'is_blocked' => $isBlocked,
             'unpaid_penalties' => $unpaidPenalties,

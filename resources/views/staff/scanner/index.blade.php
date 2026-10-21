@@ -114,7 +114,10 @@
                 <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-3 border">
                     <img id="studentAvatarImg" src="" alt="Student Selfie" class="rounded-circle border border-2 border-warning shadow-sm flex-shrink-0" style="width: 68px; height: 68px; object-fit: cover;">
                     <div class="flex-grow-1">
-                        <small class="text-muted d-block" style="font-size: 11px;">Verified Student Record</small>
+                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                            <small class="text-muted" style="font-size: 11px;">Verified Borrower Record</small>
+                            <span id="studentRoleBadge"></span>
+                        </div>
                         <h5 class="fw-bold mb-0 text-dark" id="studentName"></h5>
                         <div class="small text-primary font-monospace fw-semibold" id="studentIdNum"></div>
                     </div>
@@ -267,6 +270,15 @@
         const unpaidPenalties = data.unpaid_penalties;
         const reasons = data.block_reasons || [];
         const activeBorrowings = data.active_borrowings || [];
+
+        const role = student.role || 'student';
+        const isTeacher = (role === 'teacher');
+        const roleLabel = isTeacher ? 'Teacher / Faculty' : 'Student';
+        const roleIcon = isTeacher ? 'fa-chalkboard-user' : 'fa-graduation-cap';
+        const roleBadgeClass = isTeacher ? 'bg-info-subtle text-info-emphasis border border-info' : 'bg-secondary-subtle text-secondary border';
+
+        $('#verifiedBadge').html('<i class="fa-solid fa-check-circle me-1"></i> Verified UB ' + (isTeacher ? 'Faculty' : 'Student'));
+        $('#studentRoleBadge').html(`<span class="badge ${roleBadgeClass} fw-semibold" style="font-size: 11px;"><i class="fa-solid ${roleIcon} me-1"></i> ${roleLabel}</span>`);
 
         $('#studentName').text(student.name);
         $('#studentIdNum').text(student.student_id || 'No ID');

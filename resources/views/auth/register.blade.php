@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Student Registration')
+@section('title', 'Borrower Registration (Student / Teacher)')
 
 @push('styles')
     <style>
@@ -363,7 +363,7 @@
                 <span style="color: var(--ub-gold);">Excellence.</span>
             </h2>
             <p class="text-white-50 small mb-0" style="max-width: 440px;">
-                Student Equipment Borrowing Pass &bull; Verified selfie photo & instant digital QR registration.
+                Equipment Borrowing Pass &bull; Verified selfie photo & instant digital QR registration for Students & Faculty.
             </p>
         </div>
     </div>
@@ -380,8 +380,9 @@
                     UNIVERSITY OF BATANGAS LIPA CAMPUS
                 </div>
                 <h3 class="fw-bold mt-1 mb-0" style="color: #1e293b; font-size: 22px; letter-spacing: -0.5px;">
-                    Student Registration
+                    Borrower Registration
                 </h3>
+                <div class="text-muted" style="font-size: 12px;">Student &amp; Faculty Equipment Pass</div>
             </div>
 
             <!-- 2-Step Stepper Header -->
@@ -426,7 +427,7 @@
                 <div id="stepSection1">
                     <div class="text-center mb-3">
                         <p class="small text-muted mb-0">
-                            Please take a clear front selfie photo for your student borrowing profile.
+                            Please take a clear front selfie photo for your borrower profile.
                         </p>
                     </div>
 
@@ -515,13 +516,33 @@
                             <div>
                                 <div class="fw-bold small text-dark"><i
                                         class="fa-solid fa-circle-check text-success me-1"></i> Selfie Verified</div>
-                                <div class="text-muted" style="font-size: 11px;">Saved for student profile & QR</div>
+                                <div class="text-muted" id="selfieBadgeSubtitle" style="font-size: 11px;">Saved for borrower profile &amp; QR</div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2"
                             style="font-size: 11px;" onclick="goToStep(1)">
                             <i class="fa-solid fa-camera-rotate me-1"></i> Change
                         </button>
+                    </div>
+
+                    <!-- Role Dropdown: Student or Teacher / Faculty -->
+                    <div class="mb-2">
+                        <label for="role" class="form-label small fw-semibold text-secondary mb-1">
+                            <i class="fa-solid fa-user-tag me-1 text-warning"></i> Register As <span class="text-danger">*</span>
+                        </label>
+                        <select name="role" id="role" class="form-select auth-input-clean @error('role') is-invalid @enderror" required>
+                            <option value="student" {{ old('role', 'student') === 'student' ? 'selected' : '' }}>
+                                🎓 Student
+                            </option>
+                            <option value="teacher" {{ old('role') === 'teacher' ? 'selected' : '' }}>
+                                👨‍🏫 Teacher / Faculty Member
+                            </option>
+                        </select>
+                        @error('role')
+                            <div class="invalid-feedback">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i> {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <!-- Full Name -->
@@ -997,9 +1018,39 @@
             }
         }
 
+        // Dynamic role placeholder switching
+        function updateRoleFormDetails() {
+            const roleSelect = document.getElementById('role');
+            if (!roleSelect) return;
+            const role = roleSelect.value;
+            const studentIdInput = document.getElementById('student_id');
+            const deptInput = document.getElementById('department');
+            const emailInput = document.getElementById('email');
+            const subtitleEl = document.getElementById('selfieBadgeSubtitle');
+
+            if (role === 'teacher') {
+                if (studentIdInput) studentIdInput.placeholder = 'Faculty / Employee ID No.';
+                if (deptInput) deptInput.placeholder = 'Department / College (e.g. CCS, CBA)';
+                if (emailInput) emailInput.placeholder = 'Teacher UB Gmail Username';
+                if (subtitleEl) subtitleEl.textContent = 'Saved for faculty profile & QR';
+            } else {
+                if (studentIdInput) studentIdInput.placeholder = 'Student ID No. (e.g. UB-2024-00123)';
+                if (deptInput) deptInput.placeholder = 'College / Program (e.g. BSIT, BSHM)';
+                if (emailInput) emailInput.placeholder = 'Student UB Gmail Username';
+                if (subtitleEl) subtitleEl.textContent = 'Saved for student profile & QR';
+            }
+        }
+
+        const roleElem = document.getElementById('role');
+        if (roleElem) {
+            roleElem.addEventListener('change', updateRoleFormDetails);
+            updateRoleFormDetails();
+        }
+
         // Restore form if page is restored from browser cache (bfcache)
         window.addEventListener('pageshow', function() {
             hideLoadingOverlay();
+            updateRoleFormDetails();
         });
 
         if (registerForm) {

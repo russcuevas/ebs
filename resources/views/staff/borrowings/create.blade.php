@@ -22,7 +22,7 @@
                 <!-- Student Information Card -->
                 <div class="card card-ub mb-4">
                     <div class="card-header-ub d-flex justify-content-between align-items-center">
-                        <span><i class="fa-solid fa-user-graduate me-2"></i> Borrowing Student</span>
+                        <span><i class="fa-solid fa-user-check me-2"></i> Borrower (Student / Faculty)</span>
                         <div class="d-flex align-items-center gap-2">
                             <a href="{{ route('staff.scanner.index') }}"
                                 class="btn btn-sm btn-link p-0 text-decoration-none" style="color: var(--ub-maroon);">
@@ -55,9 +55,19 @@
                                         </div>
                                     @endif
                                     <div>
-                                        <h6 class="fw-bold mb-0 text-dark">{{ $selectedStudent->name }}</h6>
-                                        <div class="small text-muted font-monospace">{{ $selectedStudent->student_id }}
+                                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                            <h6 class="fw-bold mb-0 text-dark">{{ $selectedStudent->name }}</h6>
+                                            @if ($selectedStudent->role === 'teacher')
+                                                <span class="badge bg-info-subtle text-info-emphasis border border-info fw-semibold" style="font-size: 11px;">
+                                                    <i class="fa-solid fa-chalkboard-user me-1"></i> Teacher / Faculty
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary-subtle text-secondary border fw-semibold" style="font-size: 11px;">
+                                                    <i class="fa-solid fa-graduation-cap me-1"></i> Student
+                                                </span>
+                                            @endif
                                         </div>
+                                        <div class="small text-muted font-monospace">{{ $selectedStudent->student_id }}</div>
                                         <div class="small text-muted">{{ $selectedStudent->department }}</div>
                                         <div class="small text-muted">{{ $selectedStudent->email }}</div>
                                     </div>
@@ -97,7 +107,7 @@
                                     </a>
                                 </label>
                                 <select id="change_student_select" class="form-select select2-student" style="width: 100%;">
-                                    <option value="">-- Type Student ID or Name to Switch --</option>
+                                    <option value="">-- Type ID or Name to Switch Borrower --</option>
                                     @foreach ($allStudents as $st)
                                         <option value="{{ $st->id }}"
                                             data-student-id="{{ $st->student_id }}"
@@ -105,8 +115,9 @@
                                             data-department="{{ $st->department }}"
                                             data-email="{{ $st->email }}"
                                             data-avatar="{{ $st->avatar_url }}"
+                                            data-role="{{ $st->role }}"
                                             {{ $st->id == $selectedStudent->id ? 'selected' : '' }}>
-                                            {{ $st->student_id }} — {{ $st->name }} ({{ $st->department }})
+                                            [{{ $st->role === 'teacher' ? 'TEACHER' : 'STUDENT' }}] {{ $st->student_id }} — {{ $st->name }} ({{ $st->department }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -119,7 +130,7 @@
                                 </label>
                                 <select name="student_id" id="student_select"
                                     class="form-select select2-student @error('student_id') is-invalid @enderror" style="width: 100%;">
-                                    <option value="">-- Search Student ID (e.g. UB-2024-00123) or Name --</option>
+                                    <option value="">-- Search ID (e.g. UB-2024-00123) or Name --</option>
                                     @foreach ($allStudents as $st)
                                         <option value="{{ $st->id }}"
                                             data-student-id="{{ $st->student_id }}"
@@ -127,14 +138,15 @@
                                             data-department="{{ $st->department }}"
                                             data-email="{{ $st->email }}"
                                             data-avatar="{{ $st->avatar_url }}"
+                                            data-role="{{ $st->role }}"
                                             {{ old('student_id') == $st->id ? 'selected' : '' }}>
-                                            {{ $st->student_id }} — {{ $st->name }} ({{ $st->department }})
+                                            [{{ $st->role === 'teacher' ? 'TEACHER' : 'STUDENT' }}] {{ $st->student_id }} — {{ $st->name }} ({{ $st->department }})
                                         </option>
                                     @endforeach
                                 </select>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     <small class="text-muted" style="font-size: 11px;">
-                                        <i class="fa-solid fa-keyboard me-1"></i> Type <strong>Student ID</strong> (e.g. <code>UB-2024-00123</code>) or name to filter.
+                                        <i class="fa-solid fa-keyboard me-1"></i> Type <strong>ID Number</strong> or name to filter (Students &amp; Teachers).
                                     </small>
                                     <a href="{{ route('staff.scanner.index') }}" class="btn btn-sm btn-link p-0 text-decoration-none fw-bold" style="color: var(--ub-maroon); font-size: 11.5px;">
                                         <i class="fa-solid fa-qrcode me-1"></i> Scan QR Camera
@@ -503,6 +515,11 @@
             const dept = el.data('department') || '';
             const name = el.data('name') || state.text;
             const avatar = el.data('avatar');
+            const role = el.data('role') || 'student';
+
+            const roleBadge = role === 'teacher'
+                ? `<span class="badge bg-info-subtle text-info-emphasis border border-info me-1" style="font-size: 10px;">Teacher</span>`
+                : `<span class="badge bg-secondary-subtle text-secondary border me-1" style="font-size: 10px;">Student</span>`;
 
             const avatarHtml = avatar 
                 ? `<img src="${avatar}" class="rounded-circle border me-2.5 flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;">`
@@ -515,6 +532,7 @@
                         <div>
                             <div class="fw-bold" style="font-size: 13.5px; line-height: 1.2; color: #0f172a;">${name}</div>
                             <div class="small mt-0.5" style="font-size: 11.5px; color: #64748b;">
+                                ${roleBadge}
                                 <span class="badge bg-white text-dark border me-1 font-monospace" style="font-size: 11px;">${studentId}</span>
                                 <span>${dept}</span>
                             </div>
@@ -531,7 +549,9 @@
             const el = $(state.element);
             const studentId = el.data('student-id') || '';
             const name = el.data('name') || state.text;
-            return studentId ? `${studentId} — ${name}` : name;
+            const role = el.data('role') || 'student';
+            const rolePrefix = role === 'teacher' ? '[Teacher] ' : '[Student] ';
+            return studentId ? `${rolePrefix}${studentId} — ${name}` : name;
         }
 
         $('.select2-student').select2({

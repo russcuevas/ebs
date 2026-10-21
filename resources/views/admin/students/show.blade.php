@@ -38,7 +38,7 @@
                         </div>
                     </div>
                     <div class="small" style="font-size: 11px; opacity: 0.85; letter-spacing: 0.5px;">
-                        EQUIPMENT BORROWING SYSTEM &bull; STUDENT PASS
+                        EQUIPMENT BORROWING SYSTEM &bull; {{ $student->role === 'teacher' ? 'FACULTY PASS' : 'STUDENT PASS' }}
                     </div>
                 </div>
 
@@ -64,6 +64,17 @@
                     </div>
 
                     <h4 class="fw-bold mb-1 text-dark">{{ $student->name }}</h4>
+                    <div class="mb-2">
+                        @if ($student->role === 'teacher')
+                            <span class="badge bg-info-subtle text-info-emphasis border border-info px-2.5 py-1 fw-semibold">
+                                <i class="fa-solid fa-chalkboard-user me-1"></i> Teacher / Faculty Member
+                            </span>
+                        @else
+                            <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1 fw-semibold">
+                                <i class="fa-solid fa-graduation-cap me-1"></i> Student
+                            </span>
+                        @endif
+                    </div>
                     <div class="badge bg-light text-dark border px-3 py-1.5 font-monospace fw-bold mb-3" style="font-size: 13px;">
                         ID: {{ $student->student_id ?? 'N/A' }}
                     </div>
@@ -156,7 +167,7 @@
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small fw-semibold d-block mb-1">Registration Date</label>
-                            <div class="text-dark">{{ $student->created_at->format('F d, Y - h:i A') }}</div>
+                            <div class="text-dark">{{ $student->created_at?->format('F d, Y - h:i A') ?? 'N/A' }}</div>
                         </div>
                     </div>
                 </div>
@@ -194,21 +205,29 @@
                                     <tr>
                                         <td class="ps-4">
                                             <a href="{{ route('admin.borrowings.show', $transaction) }}" class="fw-bold text-decoration-none font-monospace text-dark hover-maroon" style="font-size: 13px;">
-                                                {{ $transaction->transaction_code }}
+                                                {{ $transaction->reference_no }}
                                             </a>
                                             <div class="text-muted small mt-0.5" style="font-size: 11.5px;">
                                                 @foreach ($transaction->items as $item)
-                                                    <span class="badge bg-light text-dark border me-1">{{ $item->item_name }} (x{{ $item->quantity }})</span>
+                                                    <span class="badge bg-light text-dark border me-1">{{ $item->item_name }}</span>
                                                 @endforeach
                                             </div>
                                         </td>
                                         <td class="text-nowrap" style="font-size: 12.5px;">
-                                            {{ $transaction->borrowed_at->format('M d, Y') }}<br>
-                                            <small class="text-muted">{{ $transaction->borrowed_at->format('h:i A') }}</small>
+                                            @if ($transaction->borrow_date_time)
+                                                {{ $transaction->borrow_date_time->format('M d, Y') }}<br>
+                                                <small class="text-muted">{{ $transaction->borrow_date_time->format('h:i A') }}</small>
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
                                         </td>
                                         <td class="text-nowrap" style="font-size: 12.5px;">
-                                            {{ $transaction->due_date_time->format('M d, Y') }}<br>
-                                            <small class="text-muted">{{ $transaction->due_date_time->format('h:i A') }}</small>
+                                            @if ($transaction->due_date_time)
+                                                {{ $transaction->due_date_time->format('M d, Y') }}<br>
+                                                <small class="text-muted">{{ $transaction->due_date_time->format('h:i A') }}</small>
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
                                         </td>
                                         <td class="text-nowrap">
                                             @if ($transaction->status === 'returned')

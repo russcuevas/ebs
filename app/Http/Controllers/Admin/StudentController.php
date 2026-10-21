@@ -16,7 +16,7 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = User::where('role', 'student')
+        $students = User::whereIn('role', ['student', 'teacher'])
             ->withCount([
                 'borrowings as total_borrowings_count',
                 'borrowings as active_borrowings_count' => function ($query) {
@@ -54,8 +54,8 @@ class StudentController extends Controller
      */
     public function show(User $student)
     {
-        if ($student->role !== 'student') {
-            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student or faculty member.');
         }
 
         // Refresh running penalties
@@ -76,8 +76,8 @@ class StudentController extends Controller
      */
     public function printCard(User $student)
     {
-        if ($student->role !== 'student') {
-            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student or faculty member.');
         }
 
         $qrSvg = $student->getQrCodeSvg();
@@ -90,8 +90,8 @@ class StudentController extends Controller
      */
     public function edit(User $student)
     {
-        if ($student->role !== 'student') {
-            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student or faculty member.');
         }
 
         return view('admin.students.edit', compact('student'));
@@ -102,8 +102,8 @@ class StudentController extends Controller
      */
     public function update(Request $request, User $student)
     {
-        if ($student->role !== 'student') {
-            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return redirect()->route('admin.students.index')->with('error', 'The requested user is not a student or faculty member.');
         }
 
         $rawEmail = trim((string) $request->input('email', ''));
@@ -132,6 +132,7 @@ class StudentController extends Controller
                 },
             ],
             'phone_number' => ['nullable', 'string', 'max:20'],
+            'role' => ['required', 'in:student,teacher'],
             'status' => ['required', 'in:active,blocked'],
         ];
 
@@ -151,6 +152,7 @@ class StudentController extends Controller
 
         $data = [
             'name' => $request->name,
+            'role' => $request->role,
             'student_id' => $request->student_id,
             'department' => $request->department,
             'email' => strtolower($request->email),
@@ -176,8 +178,8 @@ class StudentController extends Controller
      */
     public function toggleStatus(User $student)
     {
-        if ($student->role !== 'student') {
-            return back()->with('error', 'Action allowed only on student accounts.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return back()->with('error', 'Action allowed only on borrower accounts.');
         }
 
         $newStatus = $student->status === 'active' ? 'blocked' : 'active';
@@ -192,8 +194,8 @@ class StudentController extends Controller
      */
     public function verifyEmail(User $student)
     {
-        if ($student->role !== 'student') {
-            return back()->with('error', 'Action allowed only on student accounts.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return back()->with('error', 'Action allowed only on borrower accounts.');
         }
 
         $student->update(['email_verified_at' => now()]);
@@ -206,8 +208,8 @@ class StudentController extends Controller
      */
     public function destroy(User $student)
     {
-        if ($student->role !== 'student') {
-            return back()->with('error', 'Action allowed only on student accounts.');
+        if (!in_array($student->role, ['student', 'teacher'])) {
+            return back()->with('error', 'Action allowed only on borrower accounts.');
         }
 
         $activeCount = $student->borrowings()->whereIn('status', ['ongoing', 'overdue'])->count();

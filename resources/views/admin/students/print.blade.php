@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student QR Pass - {{ $student->name }} ({{ $student->student_id }})</title>
+    <title>{{ $student->role === 'teacher' ? 'Faculty' : 'Student' }} QR Pass - {{ $student->name }} ({{ $student->student_id }})</title>
 
     <!-- Google Fonts: Inter / Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -323,7 +323,7 @@
             <div class="university-badge">
                 <div class="university-title">University of Batangas</div>
             </div>
-            <div class="system-subtitle">Equipment Borrowing System <br> Student Pass</div>
+            <div class="system-subtitle">Equipment Borrowing System <br> {{ $student->role === 'teacher' ? 'Faculty Pass' : 'Student Pass' }}</div>
         </div>
 
         <!-- Card Body -->

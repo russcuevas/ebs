@@ -82,7 +82,7 @@
                     <i class="fa-solid fa-user-graduate"></i>
                 </div>
                 <div>
-                    <span class="fw-bold fs-6" style="color: var(--ub-maroon);">Registered Students Directory</span>
+                    <span class="fw-bold fs-6" style="color: var(--ub-maroon);">Registered Borrowers Directory (Students &amp; Faculty)</span>
                     <span class="text-muted small ms-2 d-none d-md-inline">({{ count($students) }} records)</span>
                 </div>
             </div>
@@ -126,8 +126,19 @@
                                             <a href="{{ route('admin.students.show', $student) }}" class="fw-bold text-dark text-decoration-none text-nowrap hover-maroon" style="font-size: 13.5px;">
                                                 {{ $student->name }}
                                             </a>
-                                            <div class="text-muted small" style="font-size: 11px;">
-                                                Registered {{ $student->created_at->format('M d, Y') }}
+                                            <div class="d-flex align-items-center gap-1 mt-0.5">
+                                                @if ($student->role === 'teacher')
+                                                    <span class="badge bg-info-subtle text-info-emphasis border border-info" style="font-size: 10px;">
+                                                        <i class="fa-solid fa-chalkboard-user me-1"></i> Teacher
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary border" style="font-size: 10px;">
+                                                        <i class="fa-solid fa-graduation-cap me-1"></i> Student
+                                                    </span>
+                                                @endif
+                                                <span class="text-muted small" style="font-size: 10.5px;">
+                                                    &bull; {{ $student->created_at->format('M d, Y') }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

@@ -23,8 +23,8 @@ class RoleMiddleware
 
         $user = Auth::user();
 
-        // Check if student email is verified
-        if ($user->role === 'student' && !$user->email_verified_at) {
+        // Check if student or teacher borrower email is verified
+        if (in_array($user->role, ['student', 'teacher']) && !$user->email_verified_at) {
             if (!$request->is('verify-otp*') && !$request->is('logout')) {
                 return redirect()->route('verification.notice');
             }

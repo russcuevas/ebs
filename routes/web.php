@@ -88,8 +88,8 @@ Route::prefix('staff')->name('staff.')->middleware(['auth', 'role:staff'])->grou
     Route::post('/students/{student}/settle-penalties', [Staff\ReturnController::class, 'settleStudentPenalties'])->name('students.settle-penalties');
 });
 
-// Student Routes
-Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])->group(function () {
+// Student & Faculty Borrower Routes
+Route::prefix('student')->name('student.')->middleware(['auth', 'role:student,teacher'])->group(function () {
     Route::get('/dashboard', [Student\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/history', [Student\HistoryController::class, 'index'])->name('history');
     Route::get('/borrowings/{transaction}', [Student\HistoryController::class, 'show'])->name('borrowings.show');

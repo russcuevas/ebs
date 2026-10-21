@@ -41,8 +41,19 @@
             <div class="card-body p-4">
                 <div class="row g-3 mb-4">
                     <div class="col-sm-6">
-                        <small class="text-muted d-block">Borrowing Student</small>
-                        <h5 class="fw-bold mb-0 text-dark">{{ $transaction->student->name ?? 'N/A' }}</h5>
+                        <small class="text-muted d-block">Borrower Information</small>
+                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                            <h5 class="fw-bold mb-0 text-dark">{{ $transaction->student->name ?? 'N/A' }}</h5>
+                            @if(optional($transaction->student)->role === 'teacher')
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info" style="font-size: 11px;">
+                                    <i class="fa-solid fa-chalkboard-user me-1"></i> Teacher / Faculty
+                                </span>
+                            @else
+                                <span class="badge bg-secondary-subtle text-secondary border" style="font-size: 11px;">
+                                    <i class="fa-solid fa-graduation-cap me-1"></i> Student
+                                </span>
+                            @endif
+                        </div>
                         <div class="small text-muted">{{ $transaction->student->student_id }} &bull; {{ $transaction->student->department }}</div>
                         <div class="small text-muted">{{ $transaction->student->email }}</div>
                     </div>

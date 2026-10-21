@@ -18,7 +18,7 @@ class BorrowingController extends Controller
         $selectedStudent = null;
         if ($request->filled('student_id')) {
             $selectedStudent = User::where('id', $request->student_id)
-                ->where('role', 'student')
+                ->whereIn('role', ['student', 'teacher'])
                 ->first();
 
             if ($selectedStudent) {
@@ -26,7 +26,7 @@ class BorrowingController extends Controller
             }
         }
 
-        $allStudents = User::where('role', 'student')
+        $allStudents = User::whereIn('role', ['student', 'teacher'])
             ->whereNotNull('email_verified_at')
             ->orderBy('name')
             ->get();

@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Student Dashboard & QR Code')
+@section('title', ($student->role === 'teacher' ? 'Faculty' : 'Student') . ' Dashboard & QR Code')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <div>
-        <h2 class="fw-bold mb-1" style="color: var(--ub-maroon);">Student Dashboard</h2>
-        <p class="text-muted small mb-0">Welcome, <strong>{{ $student->name }}</strong>! Here is your official Student QR Code and borrowing status.</p>
+        <h2 class="fw-bold mb-1" style="color: var(--ub-maroon);">{{ $student->role === 'teacher' ? 'Faculty' : 'Student' }} Dashboard</h2>
+        <p class="text-muted small mb-0">Welcome, <strong>{{ $student->name }}</strong>! Here is your official {{ $student->role === 'teacher' ? 'Faculty' : 'Student' }} QR Code and borrowing status.</p>
     </div>
     <a href="{{ route('student.history') }}" class="btn btn-ub-primary">
         <i class="fa-solid fa-clock-rotate-left me-1"></i> My Borrowing History
@@ -42,7 +42,7 @@
         <div class="card card-ub text-center p-4 h-100 shadow-sm">
             <div class="mb-2">
                 <span class="badge bg-warning text-dark px-3 py-1 fw-bold rounded-pill text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
-                    Official UB Student QR
+                    Official UB {{ $student->role === 'teacher' ? 'Faculty' : 'Student' }} QR
                 </span>
             </div>
 
@@ -58,6 +58,17 @@
             </div>
 
             <h5 class="fw-bold mb-1 text-dark">{{ $student->name }}</h5>
+            <div class="mb-2">
+                @if ($student->role === 'teacher')
+                    <span class="badge bg-info-subtle text-info-emphasis border border-info px-2.5 py-1 fw-semibold">
+                        <i class="fa-solid fa-chalkboard-user me-1"></i> Teacher / Faculty Member
+                    </span>
+                @else
+                    <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1 fw-semibold">
+                        <i class="fa-solid fa-graduation-cap me-1"></i> Student
+                    </span>
+                @endif
+            </div>
             <div class="font-monospace text-primary fw-semibold mb-1">{{ $student->student_id }}</div>
             <div class="small text-muted mb-2">{{ $student->department }}</div>
             <div class="small text-muted font-monospace mb-3">{{ $student->email }}</div>

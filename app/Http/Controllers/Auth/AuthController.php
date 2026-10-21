@@ -93,6 +93,7 @@ class AuthController extends Controller
         }
 
         $request->validate([
+            'role' => ['required', 'string', 'in:student,teacher'],
             'name' => ['required', 'string', 'max:255'],
             'student_id' => ['required', 'string', 'max:50', 'unique:users,student_id'],
             'department' => ['required', 'string', 'max:255'],
@@ -104,16 +105,17 @@ class AuthController extends Controller
                 'unique:users,email',
                 function ($attribute, $value, $fail) {
                     if (!str_ends_with(strtolower($value), '@ub.edu.ph')) {
-                        $fail('The email address must end with @ub.edu.ph (Official UB Student Email).');
+                        $fail('The email address must end with @ub.edu.ph (Official UB Email).');
                     }
                 },
             ],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
+            'role.required' => 'Please select whether you are a Student or Teacher/Faculty Member.',
             'name.required' => 'Please provide your full name.',
-            'student_id.required' => 'Please enter your Student ID number.',
-            'student_id.unique' => 'This Student ID is already registered.',
+            'student_id.required' => 'Please enter your ID number.',
+            'student_id.unique' => 'This ID is already registered in the system.',
             'department.required' => 'Please specify your department / program.',
             'email.required' => 'Please provide your official UB email address.',
             'email.unique' => 'This email address is already registered.',
@@ -122,7 +124,10 @@ class AuthController extends Controller
             'password.confirmed' => 'Password confirmation does not match.',
         ]);
 
-        // Process and save student selfie / profile photo
+        $role = $request->input('role', 'student');
+        $filePrefix = $role === 'teacher' ? 'teacher_' : 'student_';
+
+        // Process and save borrower selfie / profile photo
         $photoPath = null;
 
         if ($request->filled('profile_photo_data') && str_starts_with($request->profile_photo_data, 'data:image')) {
@@ -133,7 +138,7 @@ class AuthController extends Controller
                 if (in_array($type, ['jpg', 'jpeg', 'png', 'webp'])) {
                     $decoded = base64_decode($data);
                     if ($decoded !== false) {
-                        $filename = 'student_' . preg_replace('/[^A-Za-z0-9]/', '', $request->student_id) . '_' . time() . '.' . ($type === 'jpeg' ? 'jpg' : $type);
+                        $filename = $filePrefix . preg_replace('/[^A-Za-z0-9]/', '', $request->student_id) . '_' . time() . '.' . ($type === 'jpeg' ? 'jpg' : $type);
                         $dir = public_path('uploads/avatars');
                         if (!file_exists($dir)) {
                             mkdir($dir, 0755, true);
@@ -145,7 +150,7 @@ class AuthController extends Controller
             }
         } elseif ($request->hasFile('profile_photo_file')) {
             $file = $request->file('profile_photo_file');
-            $filename = 'student_' . preg_replace('/[^A-Za-z0-9]/', '', $request->student_id) . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = $filePrefix . preg_replace('/[^A-Za-z0-9]/', '', $request->student_id) . '_' . time() . '.' . $file->getClientOriginalExtension();
             $dir = public_path('uploads/avatars');
             if (!file_exists($dir)) {
                 mkdir($dir, 0755, true);
@@ -158,13 +163,14 @@ class AuthController extends Controller
             return back()->withInput()->withErrors(['profile_photo' => 'Please take a clear selfie photo in Step 1 before submitting your registration.']);
         }
 
-        $qrToken = 'UB-STUD-' . strtoupper(Str::random(6)) . '-' . preg_replace('/[^A-Za-z0-9]/', '', $request->student_id);
+        $qrPrefix = $role === 'teacher' ? 'UB-TEACH-' : 'UB-STUD-';
+        $qrToken = $qrPrefix . strtoupper(Str::random(6)) . '-' . preg_replace('/[^A-Za-z0-9]/', '', $request->student_id);
 
         $user = User::create([
             'name' => $request->name,
             'email' => strtolower($request->email),
             'password' => Hash::make($request->password),
-            'role' => 'student',
+            'role' => $role,
             'department' => $request->department,
             'student_id' => $request->student_id,
             'qr_code_token' => $qrToken,
