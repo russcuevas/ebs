@@ -40,7 +40,7 @@ class BorrowingController extends Controller
             'student_id' => ['required', 'exists:users,id'],
             'time_date_to_borrow' => ['required', 'date'],
             'time_date_to_returned' => ['required', 'date', 'after:time_date_to_borrow'],
-            'items' => ['required', 'array', 'min:1'],
+            'items' => ['required', 'array', 'min:1', 'max:3'],
             'items.*.name' => ['required', 'string', 'max:255'],
             'items.*.location' => ['required', 'string', 'max:255'],
             'proof_of_borrowing' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
@@ -51,6 +51,7 @@ class BorrowingController extends Controller
             'time_date_to_returned.required' => 'Return date and time is required.',
             'time_date_to_returned.after' => 'Return time must be after the borrowing time.',
             'items.required' => 'Add at least one item to the list.',
+            'items.max' => 'Maximum of 3 items can be borrowed in a single transaction.',
             'items.*.name.required' => 'Item name is required.',
             'items.*.location.required' => 'Item location is required.',
             'proof_of_borrowing.image' => 'Proof must be a valid image file (JPEG, PNG, WEBP).',
@@ -97,7 +98,11 @@ class BorrowingController extends Controller
             'staff_notes' => $request->staff_notes,
         ]);
 
+        $savedCount = 0;
         foreach ($request->items as $itemData) {
+            if ($savedCount >= 3) {
+                break;
+            }
             if (!empty($itemData['name']) && !empty($itemData['location'])) {
                 BorrowedItem::create([
                     'transaction_id' => $transaction->id,
@@ -105,6 +110,7 @@ class BorrowingController extends Controller
                     'item_location' => $itemData['location'],
                     'status' => 'ongoing',
                 ]);
+                $savedCount++;
             }
         }
 

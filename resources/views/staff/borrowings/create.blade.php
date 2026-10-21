@@ -234,14 +234,17 @@
             <div class="col-lg-7">
                 <div class="card card-ub shadow-sm">
                     <div class="card-header-ub d-flex justify-content-between align-items-center">
-                        <span><i class="fa-solid fa-boxes-stacked me-2"></i> Equipment Items List (Multiple Items)</span>
+                        <div class="d-flex align-items-center">
+                            <span><i class="fa-solid fa-boxes-stacked me-2"></i> Equipment Items List (Multiple Items)</span>
+                            <span class="badge bg-light text-secondary border fw-medium ms-2" id="itemCountBadge">1 / 3 Items</span>
+                        </div>
                         <button type="button" class="btn btn-sm btn-ub-gold" id="btnAddItemRow">
                             <i class="fa-solid fa-plus me-1"></i> Add Item
                         </button>
                     </div>
                     <div class="card-body p-3">
                         <p class="small text-muted mb-3">
-                            Multiple items can be borrowed in a single transaction. Click "Add Item" to include more items.
+                            Multiple items can be borrowed in a single transaction (Maximum of 3 items). Click "Add Item" to include more items.
                         </p>
 
                         @error('items')
@@ -265,7 +268,7 @@
                                     @endphp
 
                                     @if ($oldItems && is_array($oldItems) && count($oldItems) > 0)
-                                        @foreach ($oldItems as $index => $item)
+                                        @foreach (array_slice($oldItems, 0, 3) as $index => $item)
                                             <tr class="item-row">
                                                 <td>
                                                     <input type="text" name="items[{{ $index }}][name]"
@@ -341,9 +344,51 @@
 
 @push('scripts')
     <script>
-        let rowIndex = {{ $oldItems ? count($oldItems) : 1 }};
+        const MAX_ITEMS = 3;
+        let rowIndex = {{ $oldItems ? min(count($oldItems), 3) : 1 }};
 
-        $('#btnAddItemRow').on('click', function() {
+        function updateItemRowsState() {
+            const currentCount = $('#itemsTableBody .item-row').length;
+            const $badge = $('#itemCountBadge');
+            const $btnAdd = $('#btnAddItemRow');
+
+            if ($badge.length) {
+                if (currentCount >= MAX_ITEMS) {
+                    $badge
+                        .removeClass('bg-light text-secondary')
+                        .addClass('bg-warning-subtle text-dark border-warning')
+                        .html(`<i class="fa-solid fa-lock me-1"></i> ${currentCount} / ${MAX_ITEMS} Items (Max)`);
+                } else {
+                    $badge
+                        .removeClass('bg-warning-subtle text-dark border-warning')
+                        .addClass('bg-light text-secondary')
+                        .html(`<i class="fa-solid fa-boxes-stacked me-1"></i> ${currentCount} / ${MAX_ITEMS} Items`);
+                }
+            }
+
+            if (currentCount >= MAX_ITEMS) {
+                $btnAdd.addClass('opacity-50').attr('title', 'Maximum limit of 3 items reached');
+            } else {
+                $btnAdd.removeClass('opacity-50').removeAttr('title');
+            }
+        }
+
+        $('#btnAddItemRow').on('click', function(e) {
+            e.preventDefault();
+            const currentCount = $('#itemsTableBody .item-row').length;
+
+            if (currentCount >= MAX_ITEMS) {
+                if (typeof Toast !== 'undefined') {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Maximum limit of 3 items per borrowing reached.'
+                    });
+                } else {
+                    alert('Maximum limit of 3 items per borrowing reached.');
+                }
+                return false;
+            }
+
             const rowHtml = `
             <tr class="item-row">
                 <td>
@@ -369,18 +414,27 @@
         `;
             $('#itemsTableBody').append(rowHtml);
             rowIndex++;
+            updateItemRowsState();
         });
 
         $(document).on('click', '.btn-remove-row', function() {
             if ($('#itemsTableBody .item-row').length > 1) {
                 $(this).closest('tr').remove();
+                updateItemRowsState();
             } else {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'At least one item is required.'
-                });
+                if (typeof Toast !== 'undefined') {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'At least one item is required.'
+                    });
+                } else {
+                    alert('At least one item is required.');
+                }
             }
         });
+
+        // Initialize item state on load
+        updateItemRowsState();
 
         // Image Preview with Close/Remove Mark
         $('#proof_of_borrowing').on('change', function(e) {
