@@ -104,73 +104,16 @@
                 </div>
 
                 <!-- Outline Maroon Button: Create new account -->
-                <a href="{{ route('register') }}" class="btn btn-auth-outline-clean mb-4">
+                <a href="{{ route('register') }}" class="btn btn-auth-outline-clean">
                     Create new account
                 </a>
             </form>
-
-            <!-- 1-Click Quick Demo Credentials Pill Bar -->
-            <div class="pt-3 border-top">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="fw-bold text-secondary" style="font-size: 11px;">
-                        <i class="fa-solid fa-bolt text-warning me-1"></i> Quick Demo Logins
-                    </span>
-                    <span class="badge bg-light text-muted border" style="font-size: 10px;">Pass: password123</span>
-                </div>
-                <div class="row g-2">
-                    <div class="col-4">
-                        <button type="button" class="demo-chip-btn"
-                            onclick="fillCredentials('student@ub.edu.ph', 'password123', 'Student')">
-                            <div class="fw-bold text-success" style="font-size: 11px;">
-                                <i class="fa-solid fa-graduation-cap me-1"></i> Student
-                            </div>
-                            <div class="text-muted text-truncate" style="font-size: 9.5px;">student@ub</div>
-                        </button>
-                    </div>
-                    <div class="col-4">
-                        <button type="button" class="demo-chip-btn"
-                            onclick="fillCredentials('staff@ub.edu.ph', 'password123', 'Staff')">
-                            <div class="fw-bold text-primary" style="font-size: 11px;">
-                                <i class="fa-solid fa-user-shield me-1"></i> Staff
-                            </div>
-                            <div class="text-muted text-truncate" style="font-size: 9.5px;">staff@ub</div>
-                        </button>
-                    </div>
-                    <div class="col-4">
-                        <button type="button" class="demo-chip-btn"
-                            onclick="fillCredentials('admin@ub.edu.ph', 'password123', 'Admin')">
-                            <div class="fw-bold text-danger" style="font-size: 11px;">
-                                <i class="fa-solid fa-shield-halved me-1"></i> Admin
-                            </div>
-                            <div class="text-muted text-truncate" style="font-size: 9.5px;">admin@ub</div>
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 @endsection
 
 @push('scripts')
     <script>
-        function fillCredentials(email, pwd, role) {
-            const emailInput = document.getElementById('email');
-            const pwdInput = document.getElementById('password');
-
-            emailInput.value = email;
-            pwdInput.value = pwd;
-
-            emailInput.classList.remove('is-invalid');
-            pwdInput.classList.remove('is-invalid');
-
-            if (typeof Toast !== 'undefined') {
-                Toast.fire({
-                    icon: 'info',
-                    title: role + ' credentials loaded!'
-                });
-            }
-        }
-
         document.getElementById('togglePasswordBtn').addEventListener('click', function() {
             const input = document.getElementById('password');
             const icon = document.getElementById('togglePasswordIcon');

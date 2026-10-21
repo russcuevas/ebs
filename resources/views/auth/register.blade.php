@@ -144,6 +144,202 @@
                 width: 20px;
             }
         }
+
+        /* ================= SUBMISSION LOADING OVERLAY ================= */
+        .auth-loading-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: wait;
+        }
+
+        .auth-loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        .auth-loading-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 38px 30px;
+            max-width: 430px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15);
+            position: relative;
+            transform: scale(0.88);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: default;
+        }
+
+        .auth-loading-overlay.active .auth-loading-card {
+            transform: scale(1);
+        }
+
+        .auth-loading-spinner-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-loading-ring-outer {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3.5px solid rgba(123, 17, 19, 0.14);
+            border-top-color: var(--ub-maroon, #7B1113);
+            border-right-color: var(--ub-gold, #F5B800);
+            animation: authSpinnerRotate 1.1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+        }
+
+        .auth-loading-ring-inner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(123, 17, 19, 0.12) 0%, rgba(245, 184, 0, 0.08) 100%);
+            animation: authPulseGlow 2s ease-in-out infinite;
+        }
+
+        .auth-loading-icon-center {
+            position: relative;
+            z-index: 2;
+            font-size: 26px;
+            color: var(--ub-maroon, #7B1113);
+            animation: authPulseGlow 2s ease-in-out infinite;
+        }
+
+        .auth-loading-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+            letter-spacing: -0.4px;
+        }
+
+        .auth-loading-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 18px;
+            line-height: 1.45;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .auth-loading-progress-track {
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 0 0 18px;
+            position: relative;
+        }
+
+        .auth-loading-progress-bar {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 45%;
+            background: linear-gradient(90deg, var(--ub-maroon, #7B1113), var(--ub-gold, #F5B800), var(--ub-maroon, #7B1113));
+            background-size: 200% 100%;
+            border-radius: 999px;
+            animation: authShimmerSlide 1.8s ease-in-out infinite;
+        }
+
+        .auth-loading-steps {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .auth-loading-step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+        }
+
+        .auth-loading-step-item.active {
+            color: var(--ub-maroon, #7B1113);
+            font-weight: 700;
+        }
+
+        .auth-loading-step-item.completed {
+            color: #10b981;
+        }
+
+        .auth-loading-step-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .auth-loading-footer {
+            font-size: 11.5px;
+            color: #94a3b8;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        @keyframes authSpinnerRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes authPulseGlow {
+            0%, 100% { transform: scale(0.95); opacity: 0.85; }
+            50% { transform: scale(1.06); opacity: 1; }
+        }
+
+        @keyframes authShimmerSlide {
+            0% { left: -45%; }
+            100% { left: 100%; }
+        }
+
+        @media (max-width: 576px) {
+            .auth-loading-card {
+                padding: 28px 20px;
+                border-radius: 18px;
+            }
+            .auth-loading-title {
+                font-size: 18px;
+            }
+        }
     </style>
 @endpush
 
@@ -432,11 +628,11 @@
 
                     <!-- Actions: Back to Step 1 & Complete Registration -->
                     <div class="d-flex gap-2 mb-3">
-                        <button type="button" class="btn btn-outline-secondary"
+                        <button type="button" class="btn btn-outline-secondary" id="btnBackToStep1"
                             style="border-radius: 8px; font-weight: 600;" onclick="goToStep(1)">
                             <i class="fa-solid fa-arrow-left me-1"></i> Back
                         </button>
-                        <button type="submit" class="btn btn-auth-primary-clean flex-grow-1">
+                        <button type="submit" class="btn btn-auth-primary-clean flex-grow-1" id="btnSubmitRegistration">
                             Complete & Send OTP <i class="fa-solid fa-circle-check ms-1"></i>
                         </button>
                     </div>
@@ -452,6 +648,54 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Full-Screen Submitting Loading Overlay (Prevents interactions & provides rich feedback) -->
+    <div id="registrationLoadingOverlay" class="auth-loading-overlay" aria-hidden="true" role="dialog"
+        aria-modal="true" aria-label="Registration in progress">
+        <div class="auth-loading-card">
+            <!-- Glowing Orbiting Spinner & UB Graduation Cap Emblem -->
+            <div class="auth-loading-spinner-wrapper">
+                <div class="auth-loading-ring-outer"></div>
+                <div class="auth-loading-ring-inner"></div>
+                <div class="auth-loading-icon-center">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+            </div>
+
+            <!-- Title & Dynamic Subtitle -->
+            <h4 class="auth-loading-title">Submitting Registration</h4>
+            <div class="auth-loading-subtitle" id="authLoadingSubtext">
+                Creating your student profile & preparing credentials...
+            </div>
+
+            <!-- Animated Shimmer Progress Bar -->
+            <div class="auth-loading-progress-track">
+                <div class="auth-loading-progress-bar"></div>
+            </div>
+
+            <!-- Multi-step Staged Progress Checklist -->
+            <div class="auth-loading-steps">
+                <div class="auth-loading-step-item completed" id="stageStep1">
+                    <i class="fa-solid fa-circle-check text-success"></i>
+                    <span>Student Information & Selfie Verified</span>
+                </div>
+                <div class="auth-loading-step-item active" id="stageStep2">
+                    <i class="fa-solid fa-circle-notch fa-spin text-danger"></i>
+                    <span>Creating Account & Securing QR Token</span>
+                </div>
+                <div class="auth-loading-step-item" id="stageStep3">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span>Sending 6-Digit OTP to UB Gmail</span>
+                </div>
+            </div>
+
+            <!-- Safety Note & Lock -->
+            <div class="auth-loading-footer">
+                <i class="fa-solid fa-shield-halved text-muted"></i>
+                <span>Please do not refresh, close, or press back.</span>
+            </div>
         </div>
     </div>
 @endsection
@@ -674,6 +918,161 @@
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
             }
+        }
+
+        // ================= SUBMISSION LOADING OVERLAY & MULTI-CLICK GUARD =================
+        const registerForm = document.getElementById('multiStepRegisterForm');
+        const submitBtn = document.getElementById('btnSubmitRegistration');
+        const backBtn = document.getElementById('btnBackToStep1');
+        const loadingOverlay = document.getElementById('registrationLoadingOverlay');
+        const loadingSubtext = document.getElementById('authLoadingSubtext');
+        const stageStep1 = document.getElementById('stageStep1');
+        const stageStep2 = document.getElementById('stageStep2');
+        const stageStep3 = document.getElementById('stageStep3');
+        let isFormSubmitting = false;
+        let stageInterval = null;
+
+        function showLoadingOverlay() {
+            if (!loadingOverlay) return;
+            loadingOverlay.classList.add('active');
+            loadingOverlay.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Submitting...';
+            }
+            if (backBtn) {
+                backBtn.disabled = true;
+            }
+
+            // Start dynamic staged progress updates to keep the student informed during mail server latency
+            let elapsed = 0;
+            stageInterval = setInterval(() => {
+                elapsed += 1;
+                if (elapsed === 2) {
+                    if (stageStep2) {
+                        stageStep2.className = 'auth-loading-step-item completed';
+                        stageStep2.innerHTML = '<i class="fa-solid fa-circle-check text-success"></i> <span>Account & Student Pass Created</span>';
+                    }
+                    if (stageStep3) {
+                        stageStep3.className = 'auth-loading-step-item active';
+                        stageStep3.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-danger"></i> <span>Connecting to UB Mail Gateway...</span>';
+                    }
+                    if (loadingSubtext) {
+                        loadingSubtext.textContent = 'Connecting to official UB Mail server...';
+                    }
+                } else if (elapsed === 5) {
+                    if (stageStep3) {
+                        stageStep3.innerHTML = '<i class="fa-solid fa-paper-plane text-danger"></i> <span>Dispatching 6-Digit OTP to your Gmail...</span>';
+                    }
+                    if (loadingSubtext) {
+                        loadingSubtext.textContent = 'Sending verification code to your UB Gmail inbox...';
+                    }
+                } else if (elapsed === 9) {
+                    if (loadingSubtext) {
+                        loadingSubtext.textContent = 'Finalizing setup, redirecting to OTP verification...';
+                    }
+                }
+            }, 1000);
+        }
+
+        function hideLoadingOverlay() {
+            isFormSubmitting = false;
+            if (stageInterval) {
+                clearInterval(stageInterval);
+                stageInterval = null;
+            }
+            if (loadingOverlay) {
+                loadingOverlay.classList.remove('active');
+                loadingOverlay.setAttribute('aria-hidden', 'true');
+            }
+            document.body.style.overflow = '';
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Complete & Send OTP <i class="fa-solid fa-circle-check ms-1"></i>';
+            }
+            if (backBtn) {
+                backBtn.disabled = false;
+            }
+        }
+
+        // Restore form if page is restored from browser cache (bfcache)
+        window.addEventListener('pageshow', function() {
+            hideLoadingOverlay();
+        });
+
+        if (registerForm) {
+            registerForm.addEventListener('submit', function(e) {
+                // Prevent duplicate submission if already submitting
+                if (isFormSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // 1. Verify that selfie photo was captured in Step 1
+                if (!photoDataInput || !photoDataInput.value) {
+                    e.preventDefault();
+                    goToStep(1);
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Selfie Photo Required',
+                            text: 'Please take your front selfie photo in Step 1 before submitting.',
+                            confirmButtonColor: '#7B1113'
+                        });
+                    } else {
+                        alert('Please take your front selfie photo in Step 1 before submitting.');
+                    }
+                    return false;
+                }
+
+                // 2. Check native HTML5 form validity
+                if (!registerForm.checkValidity()) {
+                    registerForm.reportValidity();
+                    return false;
+                }
+
+                // 3. Check password confirmation match
+                const pwd = document.getElementById('reg_password');
+                const pwdConf = document.getElementById('reg_password_conf');
+                if (pwd && pwdConf && pwd.value !== pwdConf.value) {
+                    e.preventDefault();
+                    pwdConf.focus();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Password Mismatch',
+                            text: 'Your password confirmation does not match.',
+                            confirmButtonColor: '#7B1113'
+                        });
+                    } else {
+                        alert('Your password confirmation does not match.');
+                    }
+                    return false;
+                }
+
+                // 4. Check password minimum length
+                if (pwd && pwd.value.length < 8) {
+                    e.preventDefault();
+                    pwd.focus();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Password Too Short',
+                            text: 'Password must be at least 8 characters.',
+                            confirmButtonColor: '#7B1113'
+                        });
+                    } else {
+                        alert('Password must be at least 8 characters.');
+                    }
+                    return false;
+                }
+
+                // 5. Validations passed -> Show full loading UI & lock interaction
+                isFormSubmitting = true;
+                showLoadingOverlay();
+            });
         }
     </script>
 @endpush

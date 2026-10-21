@@ -915,24 +915,6 @@
             color: #7B1113;
         }
 
-        /* Demo Credentials Quick Pill Styling */
-        .demo-chip-btn {
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 6px 10px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-
-        .demo-chip-btn:hover {
-            border-color: var(--ub-maroon);
-            background: #fff8f8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(123, 17, 19, 0.12);
-        }
 
         /* Responsive: Hide Left Campus Image Showcase on Mobile & Tablets, show ONLY the Form */
         @media (max-width: 991.98px) {

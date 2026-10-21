@@ -17,8 +17,8 @@ class CronController extends Controller
         // Optional secret key validation if CRON_SECRET is set in .env
         $configuredSecret = config('app.cron_secret', env('CRON_SECRET'));
         if (!empty($configuredSecret)) {
-            $providedSecret = $request->query('key') 
-                ?? $request->query('token') 
+            $providedSecret = $request->query('key')
+                ?? $request->query('token')
                 ?? $request->header('X-Cron-Key')
                 ?? $request->bearerToken();
 
@@ -35,15 +35,33 @@ class CronController extends Controller
             Artisan::call('ebs:send-due-reminders');
             $output = trim(Artisan::output());
 
-            Log::info("Cron-job.org triggered 'ebs:send-due-reminders' successfully:\n" . $output);
+            Log::info("Cron webhook triggered 'ebs:send-due-reminders':\n" . $output);
+
+            // Extract reminder counts from command output
+            preg_match('/Reminders sent:\s*(\d+)/i', $output, $mReminders);
+            preg_match('/Overdue notices sent:\s*(\d+)/i', $output, $mOverdue);
+
+            $remindersSent = isset($mReminders[1]) ? (int) $mReminders[1] : 0;
+            $overdueSent = isset($mOverdue[1]) ? (int) $mOverdue[1] : 0;
+            $totalSent = $remindersSent + $overdueSent;
+
+            $message = $totalSent > 0
+                ? "Processed successfully. Dispatched {$remindersSent} reminder(s) and {$overdueSent} overdue notice(s)."
+                : "Processed successfully. No due or overdue reminders to send at this time (queue empty).";
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Due reminder and overdue notifications processed successfully.',
+                'empty' => $totalSent === 0,
+                'message' => $message,
+                'data' => [
+                    'reminders_sent' => $remindersSent,
+                    'overdue_notices_sent' => $overdueSent,
+                    'total_sent' => $totalSent,
+                ],
                 'timestamp' => now()->toDateTimeString(),
                 'timezone' => config('app.timezone'),
                 'output' => $output,
-            ]);
+            ], 200);
         } catch (\Throwable $e) {
             Log::error('Error executing cron reminder trigger: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
